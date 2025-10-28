@@ -40,6 +40,12 @@ To ensure smooth teamwork and avoid merge conflicts, follow this workflow for al
 
 ---
 
+## Installations
+
+After cloning the repo, run: 
+```bash
+npm install
+```
 ### 🔀 1️⃣ Create a New Feature Branch
 
 Always branch from the latest `main`:
@@ -48,3 +54,5 @@ Always branch from the latest `main`:
 git checkout main
 git pull origin main
 git checkout -b feature/<short-feature-name>
+
+```
