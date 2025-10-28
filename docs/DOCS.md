@@ -1,10 +1,15 @@
 # E-learning-platform
 
 This repository contains the backend for an E-Learning Platform built using **Node.js**, **Express**, and **Prisma ORM**.  
-The goal of the platform is to allow users (students and instructors) to register, enroll in courses, upload content, and track learning progress.
+The goal of the platform is to allow users (students and instructors) to register, enroll in courses,instructors to upload content(course, topics, lesons), and track learning progress for students. Y ou can reference this to the W3schools platform, codeacadamy, GeeksForGeeks, and mainly THE ODIN PROJECT.
 
 ---
-
+### Objects in our platform
+1. Students, users
+2. Adminstrators
+3. Courses eg.(Javascript, React)
+4. Topics eg. (functions, Objects and classes, variables--- Lessons under Javascript course)
+5. Lessons eg. (Asynchronous Javascript, synchronous javascript--- Lessons under functions Topic)
 ## 🚀 Tech Stack
 
 | Component | Technology |
