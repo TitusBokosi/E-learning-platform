@@ -1,0 +1,38 @@
+{
+  "dependencies": {
+    "@prisma/client": "^6.18.0",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-validator": "^7.3.0",
+    "jsonwebtoken": "^9.0.2",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "passport-local": "^1.0.0",
+    "prisma": "^6.18.0"
+  },
+  "name": "e-learning-platform",
+  "version": "1.0.0",
+  "description": "This is an online learning platform that aims to make learning easier. Be able to track your learning progress with good content.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TitusBokosi/E-learning-platform.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TitusBokosi/E-learning-platform/issues"
+  },
+  "homepage": "https://github.com/TitusBokosi/E-learning-platform#readme"
+}
