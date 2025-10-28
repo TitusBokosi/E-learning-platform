@@ -10,7 +10,9 @@ The goal of the platform is to allow users (students and instructors) to registe
 3. Courses eg.(Javascript, React)
 4. Topics eg. (functions, Objects and classes, variables--- Lessons under Javascript course)
 5. Lessons eg. (Asynchronous Javascript, synchronous javascript--- Lessons under functions Topic)
-visit the odin project site for inspo [The odin project](https://www.theodinproject.com/)
+
+----------------------------------------------------------------
+Visit the odin project site for inspo [The odin project](https://www.theodinproject.com/)
 ## 🚀 Tech Stack
 
 | Component | Technology |
