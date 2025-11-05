@@ -14,22 +14,69 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User{
+model User {
+  id        UUID  @id @default(cuid())
+  userName  String
+  email     String   @unique
+  roleId    Int
+  createdAt DateTime @default(now())
 
+  role   Role   @relation(fields: [roleId], references: [roleId])
+  admins Admin[]
+
+  @@map("users")
 }
 
-model Admin{
+model Role {
+  roleId   Int    @id
+  roleName String @unique
 
+  users User[]
+  @@map("roles")
 }
 
-model Course{
+model Admin {
+  id      UUID @id
+  adminRole Int
 
+  user User @relation(fields: [id], references: [id])
+  role Role @relation(fields: [adminRole], references: [roleId])
 }
 
-model Topic{
+model Course {
+  id          String @id @default(cuid())
+  courseName  String @unique
+  categoryId  Int
 
+  category Category @relation(fields: [categoryId], references: [categoryId])
+  topics   Topic[]
+
+  @@map("courses")
 }
 
-model Lesson{
-  
+model Topic {
+  id       Int    @id @default(autoincrement())
+  topicName String @unique
+  courseId  Int
+
+  course  Course  @relation(fields: [courseId], references: [id])
+  lessons Lesson[]
+
+  @@map("topics")
+}
+
+model Lesson {
+  id         Int    @id @default(autoincrement())
+  lessonName String @unique
+  topicId    Int
+
+  topic Topic @relation(fields: [topicId], references: [id])
+}
+
+model Category {
+  categoryId   Int    @id
+  categoryName String @unique
+
+  courses Course[]
+  @@map("categories")
 }
