@@ -18,15 +18,28 @@ include:{
 }
 
 const getCourseById = (id)=>{
-
+    return prisma.course.findUnique({      
+        where:{id},
+        include:{
+            creator: true,
+            topics:true,
+        }
+    })
 }
 
 const updateCourse = (id, data)=>{
-
+    return prisma.course.update({   
+        where:{id,},
+        data,
+    })
 }
 
 const deleteCourse = (id)=>{
-
+ return prisma.course.delete({
+    where:{
+        id,
+    }
+ })
 }
 
 module.exports = {
