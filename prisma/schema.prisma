@@ -11,24 +11,24 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  DATABASE_URL="postgresql://titus:3VEV5o4Air9AnNjhuoNI3gg8hz1Urkyl@dpg-d44p7p4hg0os73fjtn90-a.oregon-postgres.render.com/e_learning_r1ro"
 }
 
 model User {
   id        UUID  @id @default(cuid())
   userName  String
   email     String   @unique
-  roleId    Int
+  roleid    UUID
   createdAt DateTime @default(now())
 
-  role   Role   @relation(fields: [roleId], references: [roleId])
+  role   Role   @relation(fields: [roleid], references: [roleid])
   admins Admin[]
 
   @@map("users")
 }
 
 model Role {
-  roleId   Int    @id
+  roleid   UUID    @id
   roleName String @unique
 
   users User[]
@@ -37,44 +37,44 @@ model Role {
 
 model Admin {
   id      UUID @id
-  adminRole Int
+  adminRole UUID
 
   user User @relation(fields: [id], references: [id])
-  role Role @relation(fields: [adminRole], references: [roleId])
+  role Role @relation(fields: [adminRole], references: [roleid])
 }
 
 model Course {
   id          String @id @default(cuid())
   courseName  String @unique
-  categoryId  Int
+  categoryid  UUID
 
-  category Category @relation(fields: [categoryId], references: [categoryId])
+  category Category @relation(fields: [categoryid], references: [categoryid])
   topics   Topic[]
 
   @@map("courses")
 }
 
 model Topic {
-  id       Int    @id @default(autoincrement())
+  id       UUID    @id @default(autoincrement())
   topicName String @unique
-  courseId  Int
+  courseid  UUID
 
-  course  Course  @relation(fields: [courseId], references: [id])
+  course  Course  @relation(fields: [courseid], references: [id])
   lessons Lesson[]
 
   @@map("topics")
 }
 
 model Lesson {
-  id         Int    @id @default(autoincrement())
+  id         UUID    @id @default(autoincrement())
   lessonName String @unique
-  topicId    Int
+  topicid    UUID
 
-  topic Topic @relation(fields: [topicId], references: [id])
+  topic Topic @relation(fields: [topicid], references: [id])
 }
 
 model Category {
-  categoryId   Int    @id
+  categoryid   UUID    @id
   categoryName String @unique
 
   courses Course[]

@@ -7,6 +7,6 @@ export default defineConfig({
   },
   engine: "classic",
   datasource: {
-    url: env("DATABASE_URL"),
+    url: "postgresql://titus:3VEV5o4Air9AnNjhuoNI3gg8hz1Urkyl@dpg-d44p7p4hg0os73fjtn90-a.oregon-postgres.render.com/e_learning_r1ro",
   },
 });
