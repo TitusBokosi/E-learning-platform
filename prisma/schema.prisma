@@ -11,25 +11,72 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  DATABASE_URL="postgresql://titus:3VEV5o4Air9AnNjhuoNI3gg8hz1Urkyl@dpg-d44p7p4hg0os73fjtn90-a.oregon-postgres.render.com/e_learning_r1ro"
 }
 
-model User{
+model User {
+  id        UUID  @id @default(cuid())
+  userName  String
+  email     String   @unique
+  roleid    UUID
+  createdAt DateTime @default(now())
 
+  role   Role   @relation(fields: [roleid], references: [roleid])
+  admins Admin[]
+
+  @@map("users")
 }
 
-model Admin{
+model Role {
+  roleid   UUID    @id
+  roleName String @unique
 
+  users User[]
+  @@map("roles")
 }
 
-model Course{
+model Admin {
+  id      UUID @id
+  adminRole UUID
 
+  user User @relation(fields: [id], references: [id])
+  role Role @relation(fields: [adminRole], references: [roleid])
 }
 
-model Topic{
+model Course {
+  id          String @id @default(cuid())
+  courseName  String @unique
+  categoryid  UUID
 
+  category Category @relation(fields: [categoryid], references: [categoryid])
+  topics   Topic[]
+
+  @@map("courses")
 }
 
-model Lesson{
-  
+model Topic {
+  id       UUID    @id @default(autoincrement())
+  topicName String @unique
+  courseid  UUID
+
+  course  Course  @relation(fields: [courseid], references: [id])
+  lessons Lesson[]
+
+  @@map("topics")
+}
+
+model Lesson {
+  id         UUID    @id @default(autoincrement())
+  lessonName String @unique
+  topicid    UUID
+
+  topic Topic @relation(fields: [topicid], references: [id])
+}
+
+model Category {
+  categoryid   UUID    @id
+  categoryName String @unique
+
+  courses Course[]
+  @@map("categories")
 }
