@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -11,14 +8,14 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  DATABASE_URL="postgresql://titus:3VEV5o4Air9AnNjhuoNI3gg8hz1Urkyl@dpg-d44p7p4hg0os73fjtn90-a.oregon-postgres.render.com/e_learning_r1ro"
+  url = env("DATABASE_URL")
 }
 
 model User {
-  id        UUID  @id @default(cuid())
+  id        String   @id @default(uuid())
   userName  String
   email     String   @unique
-  roleid    UUID
+  roleid    String
   createdAt DateTime @default(now())
 
   role   Role   @relation(fields: [roleid], references: [roleid])
@@ -28,25 +25,30 @@ model User {
 }
 
 model Role {
-  roleid   UUID    @id
-  roleName String @unique
+  roleid   String  @id @default(uuid())
+  roleName String  @unique
 
-  users User[]
+  users  User[]
+  admins Admin[]   
+
   @@map("roles")
 }
 
+
 model Admin {
-  id      UUID @id
-  adminRole UUID
+  id         String @id @default(uuid())
+  adminRole  String
 
   user User @relation(fields: [id], references: [id])
   role Role @relation(fields: [adminRole], references: [roleid])
+
+  @@map("admins")
 }
 
 model Course {
-  id          String @id @default(cuid())
-  courseName  String @unique
-  categoryid  UUID
+  id          String   @id @default(uuid())
+  courseName  String   @unique
+  categoryid  String
 
   category Category @relation(fields: [categoryid], references: [categoryid])
   topics   Topic[]
@@ -55,9 +57,9 @@ model Course {
 }
 
 model Topic {
-  id       UUID    @id @default(autoincrement())
-  topicName String @unique
-  courseid  UUID
+  id         String   @id @default(uuid())
+  topicName  String   @unique
+  courseid   String
 
   course  Course  @relation(fields: [courseid], references: [id])
   lessons Lesson[]
@@ -66,16 +68,18 @@ model Topic {
 }
 
 model Lesson {
-  id         UUID    @id @default(autoincrement())
-  lessonName String @unique
-  topicid    UUID
+  id         String   @id @default(uuid())
+  lessonName String   @unique
+  topicid    String
 
   topic Topic @relation(fields: [topicid], references: [id])
+
+  @@map("lessons")
 }
 
 model Category {
-  categoryid   UUID    @id
-  categoryName String @unique
+  categoryid   String   @id @default(uuid())
+  categoryName String   @unique
 
   courses Course[]
   @@map("categories")
