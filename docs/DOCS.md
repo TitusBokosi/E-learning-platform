@@ -61,6 +61,23 @@ Always branch from the latest `main`:
 ```bash
 git checkout main
 git pull origin main
-git checkout -b feature/<short-feature-name>
+git checkout -b feat/<short-feature-name-(issue_number)>
+eg git checkout -b feat/user-models-4
+
+```
+### commit message
+```bash
+git commit -m "feat(name):commit message (#issuesNumber)"
+eg
+git commit -m "feat(user):changed user models (#4)"
+
+```
+### Pull request naming
+
+TTILE
+``` bash
+feat: pr_name (closes #issueNumber)
+eg
+feat: user-controller (closes #5)
 
 ```
