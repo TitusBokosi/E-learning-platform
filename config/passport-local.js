@@ -1,9 +1,9 @@
 const { getUserByEmail } = require("../queries/users");
 const { comparePassword } = require("../utils/password");
-
 const LocalStrategy = require("passport-local").Strategy;
 
-module.exports = passport =>{
+
+export const initializePassport = passport =>{
     passport.use(
         new LocalStrategy({
             usernameField: "email",
