@@ -3,7 +3,7 @@ const { comparePassword } = require("../utils/password");
 const LocalStrategy = require("passport-local").Strategy;
 
 
-export const initializePassport = passport =>{
+exports.initializePassport = passport =>{
     passport.use(
         new LocalStrategy({
             usernameField: "email",
