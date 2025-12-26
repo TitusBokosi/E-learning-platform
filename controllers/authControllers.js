@@ -16,7 +16,8 @@ exports.registerUser = async (req, res, next) => {
       })
     }
     const hashedPassword = await hashPassword(password)
-    const newUser = await createUser({name, email, hashedPassword});
+    
+    const newUser = await createUser({username: name, email, password: hashedPassword});
 
     if(!newUser)
       return next (new AppError("failed to create user", 500))

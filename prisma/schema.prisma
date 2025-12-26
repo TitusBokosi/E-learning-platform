@@ -2,9 +2,9 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
+
 
 datasource db {
   provider = "postgresql"
@@ -13,10 +13,11 @@ datasource db {
 
 model User {
   id        String   @id @default(uuid())
-  userName  String
+  username  String
   email     String   @unique
-  roleid    String
+  roleid    String   @default("1")
   createdAt DateTime @default(now())
+  password  String   
 
   role   Role   @relation(fields: [roleid], references: [roleid])
   admins Admin[]
