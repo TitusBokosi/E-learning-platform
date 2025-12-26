@@ -4,8 +4,10 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const passport = require("passport");
 
-const authRoutes = require("./routes/auth.routes");
+const authRoutes = require("./routes/authRoutes");
 const AppError = require("./utils/appError");
+const {initializePassport} = require ("./config/passport-local");
+const morgan = require("morgan");
 
 const app = express();
 
@@ -14,18 +16,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 
-require("./passport/local")(passport);
-require("./passport/jwt")(passport);
+initializePassport(passport);
+require("./config/passport-jwt")(passport);
+
 
 app.use(passport.initialize());
 
+app.use(morgan("dev"));
 
 app.use("/auth", authRoutes);
 
 
-app.all("*", (req, res, next) => {
-  next(new AppError(`Route ${req.originalUrl} not found`, 404));
-});
+// app.all("/*", (req, res, next) => {
+//   next(new AppError(`Route ${req.originalUrl} not found`, 404));
+// });
 
 
 app.use((err, req, res, next) => {
