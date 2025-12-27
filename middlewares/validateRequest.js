@@ -1,22 +1,21 @@
-const {validationResult} = require('express-validator');
+const { ZodError } = require("zod");
 
-const validateRequest = (req, res, next)=>{
-
-    const errors = validateRequest(req);
-
-    if(errors.isEmpty()){
-
-        return next();
+exports.validate = (schema) => (req, res, next) => {
+  try {
+    req.body = schema.parse(req.body);
+    next();
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        status: "error",
+        message: "Validation failed",
+        errors: error.issues.map((issue) => ({
+          field: issue.path.join("."),
+          message: issue.message,
+        })),
+      });
     }
 
-    const formatted = errors.array().map(err => ({
-        //formatted errors
-    }))
-
-    return res.status(400).json({
-        // return
-    })
-
-}
-
-module.exports = validateRequest
+    next(error);
+  }
+};
