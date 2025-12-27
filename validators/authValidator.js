@@ -1,27 +1,34 @@
-const { body, param } = require('express-validator');
+const { z } = require("zod");
 
 
-const createUserValidator = [
-  
-];
+const email = z
+  .string()
+  .email("Invalid email address")
+  .max(255);
 
-const loginValidator = [
-  
-];
-
-
-const resetPasswordValidator = [
- 
-];
+const password = z
+  .string()
+  .min(6, "Password must be at least 6 characters")
+  .max(255);
 
 
-const refreshTokenValidator = [
-  
-];
+const registerSchema = z.object({
+  name: z
+    .string()
+    .min(3, "Username must be at least 3 characters")
+    .max(50),
+
+  email,
+  password,
+});
+
+
+const loginSchema = z.object({
+  email,
+  password: z.string().min(1, "Password is required"),
+});
 
 module.exports = {
-createUserValidator,
-  loginValidator,
-  resetPasswordValidator,
-  refreshTokenValidator
+  registerSchema,
+  loginSchema,
 };
