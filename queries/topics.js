@@ -1,45 +1,43 @@
 const prisma = require("../config/db");
 
-const createTopic = (data)=>{
-    return prisma.Topic.create({
-        data,
-    })
-
+const createTopic = async (data)=>{
+ return await prisma.topic.create({
+    data,
+ })
 }
 
-const getTopicById = (id)=>{
-    return prisma.Topic.findUnique({
+const getTopicById = async(id)=>{
+    return await prisma.topic.findUnique({
+        where:{id}
+    })
+}
+
+const getAllTopicsForCourse = async(courseid, isPublished = true )=>{
+    return await prisma.topic.findMany({
+        where: {
+            courseid,
+            isPublished
+        }
+    })
+}
+
+const deleteTopic = async(id)=>{
+    return await prisma.topic.delete({
+        where:{id}
+    })
+}
+
+const updateTopic = async(id, data) => {
+    return await prisma.topic.update({
         where:{id},
+        data
     })
-
-}
-
-const getAllTopics = (isPublished = true )=>{
-    return prisma.Topic.findMany({
-        where:{isPublished},
-    })
-
-}
-
-const deleteTopic = (id)=>{
-    return prisma.Topic.delete({
-        where:{id},
-    })
-
-}
-
-const updateTopic = (id, data) =>{
-    return prisma.Topic.update({
-        where:{id},
-        data,
-    })
-
 }
 
 module.exports = {
     createTopic,
     getTopicById,
-    getAllTopics,
+    getAllTopicsForCourse,
     updateTopic,
     deleteTopic
 }
