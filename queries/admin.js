@@ -1,18 +1,18 @@
 const prisma = require("../config/db");
 
-const changeUserRole = (id, data)=>{
-    return prisma.User.update({
-        where:{id},
-        data,
-    })
-
+const changeUserRole = async(id, data)=>{
+ return await prisma.user.update({
+    where:{
+        id
+    },
+    data
+ })
 }
 
-const deleteUser = id =>{
-    return prisma.User.delete({
-        where:{id},
-    })
-
+const deleteUser = async(id) =>{
+return prisma.user.delete({
+    where:{id}
+})
 }
 
 
