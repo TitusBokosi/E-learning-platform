@@ -7,25 +7,31 @@ const createUser = async (data)=>{
     })
 }
 
-const getUserById = (id)=>{
-    return prisma.user.findUnique({
-        where:{id}
+const getUserById = async(id)=>{
+    return await prisma.user.findUnique({
+        where:{id},
+        select:{
+            id: true,
+            username: true,
+            email: true,
+            roleid: true,
+        }
     })
 }
 
-const getAllUsers = ()=>{
-    return prisma.user.findmany();
+const getAllUsers = async()=>{
+    return await prisma.user.findmany();
 }
 
-const updateUser = (id, data)=>{
-    return prisma.user.update({
+const updateUser = async(id, data)=>{
+    return await prisma.user.update({
         where:{id,},
         data,
     })
 }
 
-const deleteUser = (id)=>{
-    return prisma.user.delete({
+const deleteUser = async(id)=>{
+    return await prisma.user.delete({
         where:{id},
     })
 }

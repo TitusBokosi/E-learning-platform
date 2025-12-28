@@ -1,14 +1,14 @@
 const prisma = require("../config/db");
 
-const createCourse = (data)=>{
-    return prisma.course.create({
+const createCourse = async(data)=>{
+    return await prisma.course.create({
         data,
     })
 }
 
 //gets all courses which are published including the creator and the topics under the course
-const getAllCourses = (isPublished = true)=>{
-    return prisma.course.findmany({
+const getAllCourses = async(isPublished = true)=>{
+    return await prisma.course.findMany({
 where:{isPublished},
 include:{
     creator: true,
@@ -17,8 +17,8 @@ include:{
     })
 }
 
-const getCourseById = (id)=>{
-    return prisma.course.findUnique({      
+const getCourseById = async(id)=>{
+    return await prisma.course.findUnique({      
         where:{id},
         include:{
             creator: true,
@@ -27,15 +27,15 @@ const getCourseById = (id)=>{
     })
 }
 
-const updateCourse = (id, data)=>{
-    return prisma.course.update({   
+const updateCourse = async(id, data)=>{
+    return await prisma.course.update({   
         where:{id,},
         data,
     })
 }
 
-const deleteCourse = (id)=>{
- return prisma.course.delete({
+const deleteCourse = async(id)=>{
+ return await prisma.course.delete({
     where:{
         id,
     }

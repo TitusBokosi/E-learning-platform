@@ -1,36 +1,38 @@
 const prisma = require("../config/db");
 
-const createLesson = (data)=>{
-    return prisma.Lesson.create({
+const createLesson = async(data)=>{
+    return await prisma.lesson.create({
         data,
     })
 
 }
 
-const getAllLessons = (isPublished = true )=>{
-    return prisma.Lesson.findMany({
-        where:{isPublished}
+const getAllLessonsForTopic = async(topicid,isPublished = true )=>{
+    return await prisma.lesson.findMany({
+        where:{isPublished,
+            topicid
+        }
     })
 
 }
 
-const getLessonById = (id)=>{
-    return prisma.Lesson.findUnique({
+const getLessonById = async(id)=>{
+    return await prisma.lesson.findUnique({
         where:{id},
     })
 
 }
 
-const updateLesson = (id, data) => {
-    return prisma.Lesson.update({
+const updateLesson = async(id, data) => {
+    return await prisma.lesson.update({
         where:{id},
         data,
     })
 
 }
 
-const deleteLesson = (id) =>{
-    return prisma.lesson.delete({
+const deleteLesson = async(id) =>{
+    return await prisma.lesson.delete({
         where:{id},
     })
 
@@ -38,7 +40,7 @@ const deleteLesson = (id) =>{
 
 module.exports = {
     createLesson,
-    getAllLessons,
+    getAllLessonsForTopic,
     getLessonById,
     deleteLesson,
     updateLesson
