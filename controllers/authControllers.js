@@ -35,7 +35,7 @@ exports.registerUser = async (req, res, next) => {
 exports.loginUser = async (req, res, next) => {
   try{
     const {accessToken, refreshToken, user} = authService.login(req.user); 
-
+   
     res.cookie("refreshToken", refreshToken,{
       httpOnly:true,
       sameSite: "Strict",

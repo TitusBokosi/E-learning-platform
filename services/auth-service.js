@@ -3,11 +3,11 @@ const { generateTokens } = require("../utils/generateToken");
 exports.login = user =>{
     const payload = {id:user.id};
 
-    const {accessToken, refrshToken} = generateTokens(payload);
-
+    const {accessToken, refreshToken} = generateTokens(payload);
+ 
     return{
         accessToken,
-        refrshToken,
+        refreshToken,
         user:{
             id: user.id,
             email: user.email,
