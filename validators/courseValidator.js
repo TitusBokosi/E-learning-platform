@@ -1,64 +1,38 @@
 const {z }=require("zod");
 
     const createCourseValidator =z.object({
-        title:z
+        courseName:z
             .string()
-            .min(5)
-            .max(225)
-            .trim(),
-        description:z
-            .string()
-            .min(20)
-            .max(225)
+            .min(3, "coursename must be atleast 3 characters")
+            .max(50)
             .trim(),
         category:z
-            .string.min(2)
-            .max(200)
+            .string
+            .min(2, "category name must be atleast 2 characters")
+            .max(100)
             .trim(),
-        level: z
-            .enum(["beginner", "intermediate", "advanced", "all levels"]),
-        toltalLessons:z
-            .number()
-            .min(1)
-            .max(500)
-            .default(1),
-        instructorId:z
-            .string()
-            .uuid()
-            .min(1),
-        courseStatus:z
-            .boolean()
-            .default(false),
     }) ;
 
     const getCourseByIdValidator = z.object({
         courseId:z
             .string()
-            .uuid("must be a valid courseId")
+            .uuid("Invalid courseId")
     });
 
     const updateCourseValidator = z.object({
         courseId:z
             .string()
-            .uuid("should be a valid courseId"),
-            newdata: z.object({
-                title,
-                descripion,
-                category,
-                level,
-                toltalLessons,
-                instructorId,
-                courseStatus
-
+            .uuid("Invalid courseId"),
+        newdata: z.object({
+            courseName,    
+            category,
             })
     });
 
     const deleteCourseValidator = z.object({
         courseId:z
             .string()
-            .uuid('invalid courseId'),
-        courseTitle:z
-            .string()
+            .uuid('Invalid courseId'),
     });
 
 module.exports = {
