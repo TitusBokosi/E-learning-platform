@@ -1,47 +1,53 @@
 const prisma = require("../config/db");
 
-const createLesson = async(data)=>{
-    return await prisma.lesson.create({
-        data,
-    })
 
-}
+const createLesson = async (data) => {
+  return await prisma.lesson.create({
+    data: {
+      lessonName: data.lessonName,
+      topicid: data.topicId, 
+    },
+  });
+};
 
-const getAllLessonsForTopic = async(topicid,isPublished = true )=>{
-    return await prisma.lesson.findMany({
-        where:{isPublished,
-            topicid
-        }
-    })
 
-}
+const getAllLessonsForTopic = async (topicid) => {
+  return await prisma.lesson.findMany({
+    where: {
+      topicid,
+    },
+  });
+};
 
-const getLessonById = async(id)=>{
-    return await prisma.lesson.findUnique({
-        where:{id},
-    })
 
-}
+const getLessonById = async (id) => {
+  return await prisma.lesson.findUnique({
+    where: { id },
+  });
+};
 
-const updateLesson = async(id, data) => {
-    return await prisma.lesson.update({
-        where:{id},
-        data,
-    })
 
-}
+const updateLesson = async (id, data) => {
+  return await prisma.lesson.update({
+    where: { id },
+    data: {
+      ...(data.lessonName && { lessonName: data.lessonName }),
+      ...(data.topicId && { topicid: data.topicId }),
+    },
+  });
+};
 
-const deleteLesson = async(id) =>{
-    return await prisma.lesson.delete({
-        where:{id},
-    })
 
-}
+const deleteLesson = async (id) => {
+  return await prisma.lesson.delete({
+    where: { id },
+  });
+};
 
 module.exports = {
-    createLesson,
-    getAllLessonsForTopic,
-    getLessonById,
-    deleteLesson,
-    updateLesson
-}
+  createLesson,
+  getAllLessonsForTopic,
+  getLessonById,
+  updateLesson,
+  deleteLesson,
+};

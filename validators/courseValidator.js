@@ -1,43 +1,56 @@
-const {z }=require("zod");
+const { z } = require("zod");
 
-    const createCourseValidator =z.object({
-        courseName:z
-            .string()
-            .min(3, "coursename must be atleast 3 characters")
-            .max(50)
-            .trim(),
-        category:z
-            .string
-            .min(2, "category name must be atleast 2 characters")
-            .max(100)
-            .trim(),
-    }) ;
 
-    const getCourseByIdValidator = z.object({
-        courseId:z
-            .string()
-            .uuid("Invalid courseId")
-    });
+const createCourseValidator = z.object({
+  courseName: z
+    .string()
+    .min(3, "Course name must be at least 3 characters")
+    .max(50, "Course name must not exceed 50 characters")
+    .trim(),
 
-    const updateCourseValidator = z.object({
-        courseId:z
-            .string()
-            .uuid("Invalid courseId"),
-        newdata: z.object({
-            courseName,    
-            category,
-            })
-    });
+  categoryId: z
+    .string()
+    .uuid("Invalid categoryId"),
+});
 
-    const deleteCourseValidator = z.object({
-        courseId:z
-            .string()
-            .uuid('Invalid courseId'),
-    });
+
+const getCourseByIdValidator = z.object({
+  courseId: z
+    .string()
+    .uuid("Invalid courseId"),
+});
+
+
+const updateCourseValidator = z.object({
+  courseId: z
+    .string()
+    .uuid("Invalid courseId"),
+
+  newdata: z.object({
+    courseName: z
+      .string()
+      .min(3, "Course name must be at least 3 characters")
+      .max(50)
+      .trim()
+      .optional(),
+
+    categoryId: z
+      .string()
+      .uuid("Invalid categoryId")
+      .optional(),
+  }).strict(),
+});
+
+
+const deleteCourseValidator = z.object({
+  courseId: z
+    .string()
+    .uuid("Invalid courseId"),
+});
 
 module.exports = {
-    createCourseValidator,
-    getCourseByIdValidator,
-    updateCourseValidator,
-    deleteCourseValidator
-}
+  createCourseValidator,
+  getCourseByIdValidator,
+  updateCourseValidator,
+  deleteCourseValidator,
+};

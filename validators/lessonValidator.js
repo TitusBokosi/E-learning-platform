@@ -1,48 +1,55 @@
-const z = require("zod");
+const { z } = require("zod");
 
- const createTopicValidator = z.object({
-    lessonName:z    
-        .string()
-        .min(3, "lesson-name must be atleast 3 characters")
-        .trim(),
-    topicId:z
-        .string()
-        .uuid("invalid topicId")
-        .trim()
- });
+const createLessonValidator = z.object({
+  lessonName: z
+    .string()
+    .min(3, "Lesson name must be at least 3 characters")
+    .max(50, "Lesson name must not exceed 50 characters")
+    .trim(),
 
-    const getLessonByIdValidator =z.object({
-        lessonid:z
-            .string()
-            .uuid("invalid lessonId")
-            .trim()
-    });
-    const updateLessonValidator = z.object({
-        lessonid:z
-            .string()
-            .uuid("invalid lessonId")
-            .trim(),
-        lessonName:z
-            .string()
-            .min(3,"lesson-name must be atleast 3 characters")
-            .max(50),
-        topicId:z   
-            .string()
-            .uuid()
-            .trim()
-    });
+  topicId: z
+    .string()
+    .uuid("Invalid topicId"),
+});
 
-    const deleteLessonValidator = z.object({
-        lessonId:z  
-            .string()
-            .uuid("invalid lessonId")
-            .trim()
 
-    });
-    
+const getLessonByIdValidator = z.object({
+  lessonId: z
+    .string()
+    .uuid("Invalid lessonId"),
+});
+
+
+const updateLessonValidator = z.object({
+  lessonId: z
+    .string()
+    .uuid("Invalid lessonId"),
+
+  newdata: z.object({
+    lessonName: z
+      .string()
+      .min(3, "Lesson name must be at least 3 characters")
+      .max(50)
+      .trim()
+      .optional(),
+
+    topicId: z
+      .string()
+      .uuid("Invalid topicId")
+      .optional(),
+  }).strict(),
+});
+
+
+const deleteLessonValidator = z.object({
+  lessonId: z
+    .string()
+    .uuid("Invalid lessonId"),
+});
+
 module.exports = {
-    createLessonValidator,
-    getLessonByIdValidator,
-    updateLessonValidator,
-    deleteLessonValidator
-}
+  createLessonValidator,
+  getLessonByIdValidator,
+  updateLessonValidator,
+  deleteLessonValidator,
+};

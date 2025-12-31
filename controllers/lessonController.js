@@ -7,77 +7,57 @@ const {
 } = require('../queries/lessons');
 
 const createLessonController = async (req, res, next) => {
-    try {
-        const data = req.body;
-
-        const newLesson = await createLesson(data);
-        res.status(201).json({
-            status: "success",
-            data: newLesson
-        });
-    } catch (error) {
-        next(error);
-    }
+  try {
+    const newLesson = await createLesson(req.body);
+    res.status(201).json({ status: "success", data: newLesson });
+  } catch (error) {
+    next(error);
+  }
 };
 
 const getAllLessonsController = async (req, res, next) => {
-    try {
-        const lessons = await getAllLessonsForTopic(req.params.topicId);
-        res.status(200).json({
-            status: "success",
-            data: lessons
-        });
-    } catch (error) {
-        next(error);
-    }
+  try {
+    const { topicId } = req.params;
+    const lessons = await getAllLessonsForTopic(topicId);
+    res.status(200).json({ status: "success", data: lessons });
+  } catch (error) {
+    next(error);
+  }
 };
 
 const getLessonByIdController = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const lesson = await getLessonById(id);
-        if (!lesson) {
-            return res.status(404).json({
-                message: 'Lesson not found'
-            });
-        }
-        res.status(200).json({
-            message: 'Lesson retrieved successfully',
-            data: lesson
-        });
-    } catch (error) {
-        next(error);
+  try {
+    
+    const { lessonId } = req.params; 
+    const lesson = await getLessonById(lessonId);
+    
+    if (!lesson) {
+      return res.status(404).json({ status: "fail", message: 'Lesson not found' });
     }
+    res.status(200).json({ status: "success", data: lesson });
+  } catch (error) {
+    next(error);
+  }
 };
 
 const updateLessonController = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const data = req.body;
-
-        const updatedLesson = await updateLesson(id, data);
-
-        res.status(200).json({
-          status: "success",
-          data: updatedLesson
-        })
-    } catch (error) {
-        next(error);
-    }
+  try {
+    const { lessonId, newdata } = req.body; 
+    const updatedLesson = await updateLesson(lessonId, newdata);
+    res.status(200).json({ status: "success", data: updatedLesson });
+  } catch (error) {
+    next(error);
+  }
 };
 
 const deleteLessonController = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-
-        const deletedLesson = await deleteLesson(id);
-        res.status(204).json({
-            status: "success",
-            data: deletedLesson
-        });
-    } catch (error) {
-        next(error);
-    }
+  try {
+    const { lessonId } = req.params;
+    await deleteLesson(lessonId);
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
 };
 
 module.exports = {
