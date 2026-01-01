@@ -12,6 +12,6 @@ authRoute.post("/register", validate(registerSchema), registerUser);
 authRoute.post("/login", validate(loginSchema),authenticateLocal, loginUser);
 authRoute.post("/refresh" ,authenticateRefreshToken, refreshTokenController);
 authRoute.post("/logout", logOutUserController);
-authRoute.patch("/password",validate(changePasswordSchema), authenticateAccessToken, updatePasswordController);
+
 
 module.exports = authRoute;
