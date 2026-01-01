@@ -8,44 +8,49 @@ const {
 const AppError = require('../utils/appError');
 
 const createTopicController = async (req, res, next) => {
-  try{
-      const data = req.body;
+  try {
 
-      const newTopic = await createTopic(data);
-      res.status(201).json({
-          status: "success",
-          data: newTopic
-      });
+    const newTopic = await createTopic(req.body);
+    
+    res.status(201).json({
+      status: "success",
+      data: newTopic
+    });
   } catch (error) {
-      next(error);
+    next(error);
   }
 };
 
 const getTopicByIdController = async (req, res, next) => {
-  try{
-    const {id} = req.params;
+  try {
 
-    const topic = await getTopicById(id);
+    const { topicId } = req.params;
 
-    if(!topic){
-      return next( new AppError("Topic not found", 404));
+    const topic = await getTopicById(topicId);
+
+    if (!topic) {
+      return next(new AppError("Topic not found", 404));
     }
 
-    return res.status(200).json({
+    res.status(200).json({
       status: "success",
       data: topic,
-    })
-  }
-  catch(err){
-    return next (err);
+    });
+  } catch (err) {
+    next(err);
   }
 };
 
 const getAllTopicsController = async (req, res, next) => {
   try {
-    const topics = await getAllTopicsForCourse(req.params.courseId);
+
+    const { courseId } = req.params;
+    
+    const topics = await getAllTopicsForCourse(courseId);
+    
     res.status(200).json({
       status: "success",
+      results: topics.length,
       data: topics
     });
   } catch (error) {
@@ -54,38 +59,34 @@ const getAllTopicsController = async (req, res, next) => {
 };
 
 const updateTopicController = async (req, res, next) => {
-  try{
-    const {id} = req.params;
-    const data = req.body;
+  try {
+  
+    const { topicId, newdata } = req.body;
 
-    const updatedTopic = await updateTopic(id, data);
+    const updatedTopic = await updateTopic(topicId, newdata);
 
-    return  res.status(200).json({
+    res.status(200).json({
       status: "success",
       data: updatedTopic
-    })
-  }
-  catch(err){
-    return next (err);
+    });
+  } catch (err) {
+    next(err);
   }
 };
 
 const deleteTopicController = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { topicId } = req.params;
 
-    const deletedTopic = await deleteTopic(id);
+    await deleteTopic(topicId);
 
-    if (!deletedTopic) {
-      return next(new AppError("Topic not found", 404));
-    }
-
-    return res.status(204).json({
+    res.status(204).json({
       status: "success",
       data: null
     });
   } catch (err) {
-    return next(err);
+   
+    next(err);
   }
 };
 

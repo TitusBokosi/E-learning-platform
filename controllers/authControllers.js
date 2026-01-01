@@ -55,31 +55,37 @@ exports.loginUser = async (req, res, next) => {
 };
 exports.updatePasswordController = async (req, res, next) => {
   try{
-    const {oldPassword, verifiedPassword, newPassword} = req.body || null;
+    const { currentPassword, verifiedPassword, newPassword} = req.body || null;
+   
 
-    if(oldPassword){
-      const user = await getUserById(req.user.id);
-      const isMatch = await comparePassword(oldPassword, user.password);
+    if(currentPassword){
+      const userId = req.user.email;
+      const user = await getUserByEmail(userId);
+      
+      if (!user){
+        return next (new AppError("User not found", 404));
+      }
+      const isMatch = await comparePassword(currentPassword, user.password);
 
       if(!isMatch){
         return next (new AppError("Incorrect password", 400));
       }
 
-      return res.status(200).json({
-        status: "Success",
-        message: "Password is correct",
-      })
-    }
+      // return res.status(200).json({
+      //   status: "Success",
+      //   message: "Password is correct",
+      // })
 
-    if(verifiedPassword &&  newPassword){
-      const user = await getUserById(req.user.id);
-      
+  
+      if(newPassword !== verifiedPassword && verifiedPassword != null){
+     
+        const user = await getUserByEmail(req.user.email);
       if(!user)
         return next (new AppError("User not found", 404));
 
-      const isMatch = await comparePassword(verifiedPassword, user.password);
+      const isMatching = await comparePassword(verifiedPassword, user.password);
 
-      if(!isMatch){
+      if(!isMatching){
         return next (new AppError("Incorrect verified password", 400));
       }
 
@@ -91,12 +97,15 @@ exports.updatePasswordController = async (req, res, next) => {
         status:"Success",
         message: "Password updated successfully",
       })
+      
+    
     }
-  }
+};
+}
   catch(err){
     return next (err);
   }
-};
+}
 
 exports.refreshTokenController = async (req, res, next) => {
   try{

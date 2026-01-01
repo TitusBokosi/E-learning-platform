@@ -27,9 +27,9 @@ app.use(morgan("dev"));
 app.use("/auth", authRoutes);
 
 
-// app.all("/*", (req, res, next) => {
-//   next(new AppError(`Route ${req.originalUrl} not found`, 404));
-// });
+app.use("/", (req, res, next) => {
+  next(new AppError(`Route ${req.originalUrl} not found`, 404));
+});
 
 
 app.use((err, req, res, next) => {

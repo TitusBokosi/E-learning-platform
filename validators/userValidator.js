@@ -25,7 +25,7 @@ const updateUserSchema = z.object({
 
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, "Current password is required"),
-
+  verifiedPassword: z.string().min(1, "Verified password is required"),
   newPassword: z
     .string()
     .min(6, "New password must be at least 6 characters")
