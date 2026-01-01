@@ -8,7 +8,7 @@ const adminRoute = require("./adminRoutes");
 
 
 const userRoute = express.Router();
-userRoutes.use("/admin", adminRoute);
+userRoute.use("/admin", adminRoute);
 userRoute.get("/:userId", validate(userIdParamSchema), authenticateAccessToken, getUserByIdController);
 userRoute.patch("/:userId", validate(userIdParamSchema), validate(userUpdateSchema), authenticateAccessToken, updateUserController);
 userRoute.delete("/:userId", authenticateAccessToken, deleteUserController);
