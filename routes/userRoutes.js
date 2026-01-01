@@ -3,11 +3,12 @@ const { validate } = require("../middlewares/validateRequest");
 const { userIdParamSchema, changePasswordSchema } = require("../validators/userValidator");
 const { authenticateAccessToken } = require("../middlewares/authMiddleware");
 const { getUserByIdController, updateUserController, deleteUserController} = require("../controllers/userControllers");
-const { user } = require("../config/db");
+const adminRoute = require("./adminRoutes");
+
 
 
 const userRoute = express.Router();
-
+userRoutes.use("/admin", adminRoute);
 userRoute.get("/:userId", validate(userIdParamSchema), authenticateAccessToken, getUserByIdController);
 userRoute.patch("/:userId", validate(userIdParamSchema), validate(userUpdateSchema), authenticateAccessToken, updateUserController);
 userRoute.delete("/:userId", authenticateAccessToken, deleteUserController);

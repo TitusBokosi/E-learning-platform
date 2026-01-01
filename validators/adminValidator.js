@@ -16,6 +16,6 @@ const changeUserRoleValidator = z.object({
     path: [newRoleId],
 })
 
-module.exports({
+module.exports = {
     changeUserRoleValidator, deleteUserValidator
-})
+}
