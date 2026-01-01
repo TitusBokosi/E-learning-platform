@@ -17,7 +17,7 @@ const changeUserRoleController = async (req, res, next) => {
 
 const deleteUserController = async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const { id } = req.body.userId;
 
         const deletedUser = await deleteUser(id);
         res.status(204).json({
