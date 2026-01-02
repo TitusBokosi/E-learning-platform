@@ -5,15 +5,18 @@ const deleteUserValidator = z.object({
 
 });
 
-const changeUserRoleValidator = z.object({
+const changeUserRoleValidator = z
+.object({
     userId:z.string().uuid("Invalid user id"),
-    newRoleId:string().max(1, "Invalid role id"),
-    oldRoleId:string().max(1, "Invalid role id"),
+    newRoleId:z.string().max(1, "Invalid role id"),
+    oldRoleId:z.string().max(1, "Invalid role id"),
 
-}).refine((data)=> data.oldRoleId != newRoleId,
+})
+.refine(
+    (data)=> data.oldRoleId !== data.newRoleId,
 {
     message: "New role must be different from old role",
-    path: [newRoleId],
+    path: ["newRoleId"],
 })
 
 module.exports = {

@@ -3,14 +3,16 @@ const errorHandler = (err, req, res, next) => {
     const statusCode = err.statusCode || 500;
     const status = err.status || "error";
 
-    if (process.env.NODE_ENV === "development") {
-        res.status(statusCode).json({
-            status: status,
-            message: err.message || "Internal Server Error!",
-            stack: err.stack,
-            error: err
-        });
-    } else if (process.env.NODE_ENV === "production") {
+          console.error("❌ ERROR:", {
+    method: req.method,
+    url: req.originalUrl,
+    message: err.message,
+    stack: err.stack,
+    body: req.body,
+    params: req.params,
+    user: req.user?.id,
+  });
+        
         if (err.isOperational){
             res.status(statusCode).json({
                 status,
@@ -23,7 +25,7 @@ const errorHandler = (err, req, res, next) => {
                 message: "Something went wrong!"
             });
         }
-    }
+    
 };
 
     

@@ -2,10 +2,10 @@ const { changeUserRole, deleteUser } = require('../queries/admin');
 
 const changeUserRoleController = async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const {  userId } = req.params;
         const data = req.body;
 
-        const updatedUser = await changeUserRole(id, data);
+        const updatedUser = await changeUserRole(userId, data);
         res.status(200).json({
             message: 'User role updated successfully',
             data: updatedUser
@@ -17,9 +17,9 @@ const changeUserRoleController = async (req, res, next) => {
 
 const deleteUserController = async (req, res, next) => {
     try {
-        const { id } = req.body.userId;
+        const {  userId } = req.body;
 
-        const deletedUser = await deleteUser(id);
+        const deletedUser = await deleteUser(userId);
         res.status(204).json({
            status:"success",
             data: deletedUser

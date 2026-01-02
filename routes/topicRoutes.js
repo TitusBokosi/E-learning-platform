@@ -10,5 +10,9 @@ topicRoute.get("/topicid", validate(getTopicByIdValidator), getTopicByIdControll
 topicRoute.patch("/updatetopic", validate(updateTopicValidator), updateTopicController);
 topicRoute.delete("/deletetopic", validate(deleteTopicValidator), deleteTopicController)
 
+const lessonRoute = require("./lessonRoutes");
+
+const topicRoute = express.Router();
+topicRoute.use("/:topicId/lessons", lessonRoute);
 
 module.exports = topicRoute;
