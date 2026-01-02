@@ -17,7 +17,7 @@ const getAllUsersController = async (req, res, next) => {
 
 const getUserByIdController = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { id } = req.user;
     const user = await getUserById(id);
 
     if (!user) {
@@ -35,7 +35,7 @@ const getUserByIdController = async (req, res, next) => {
 
 const deleteUserController = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { id } = req.user;
     const deletedUser = await deleteUser(id);
 
     if (!deletedUser) {
@@ -53,7 +53,7 @@ const deleteUserController = async (req, res, next) => {
 
 const updateUserController = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { id } = req.user;
     const data = req.body;
     
     const updatedUser = await updateUser(id, data);
