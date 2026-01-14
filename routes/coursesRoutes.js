@@ -1,19 +1,16 @@
 const express = require("express");
-const { createCourseController, getAllCoursesController, getCourseByIdController, updateCourseController, deleteCourseController} =require("./controllers/courseControllers");
+const { createCourseController, getAllCoursesController, getCourseByIdController, updateCourseController, deleteCourseController} =require("../controllers/courseControllers");
 const {createCourseValidator, getCourseByIdValidator, updateCourseValidator, deleteCourseValidator,} =require ("../validators/courseValidator");
-
-const courseRoute = express.Router();
-
-courseRoute.GET("/", getAllCoursesController);
-courseRoute.POST("/", validate(createCourseValidator), createCourseController);
-courseRoute.GET("/:courseid", validate(getCourseByIdValidator), getCourseByIdController);
-courseRoute.PUT("/:courseid", validate(updateCourseValidator), updateCourseController);
-courseRoute.DELETE("/:courseid", validate(deleteCourseValidator), deleteCourseController);
 const topicRoute = require("./topicRoutes");
+const { validate } = require("../middlewares/validateRequest");
 
 const courseRoute = express.Router();
 
+courseRoute.get("/", getAllCoursesController);
+courseRoute.post("/", validate(createCourseValidator), createCourseController);
+courseRoute.get("/:courseId", validate(getCourseByIdValidator), getCourseByIdController);
+courseRoute.put("/:courseId", validate(updateCourseValidator), updateCourseController);
+courseRoute.delete("/:courseId", validate(deleteCourseValidator), deleteCourseController);
 courseRoute.use("/:courseId/topics", topicRoute);
-
 
 module.exports = courseRoute;
