@@ -8,7 +8,7 @@ const {authenticateLocal, authenticateAccessToken, authenticateRefreshToken} = r
 const { changePasswordSchema } = require("../validators/userValidator");
 
 
-authRoute.post("/register", validate(registerSchema), registerUser);
+authRoute.post("/signup", validate(registerSchema), registerUser);
 authRoute.post("/login", validate(loginSchema),authenticateLocal, loginUser);
 authRoute.post("/refresh" ,authenticateRefreshToken, refreshTokenController);
 authRoute.post("/logout", logOutUserController);

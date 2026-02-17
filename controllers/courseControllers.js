@@ -4,9 +4,9 @@ const {
   getCourseById,
   updateCourse,
   deleteCourse,
-} = require("../queries/courses");
+} = require('../queries/courses');
 
-const AppError = require("../utils/appError");
+const AppError = require('../utils/appError');
 
 /**
  * CREATE COURSE
@@ -16,7 +16,7 @@ const createCourseController = async (req, res, next) => {
     const newCourse = await createCourse(req.body);
 
     return res.status(201).json({
-      status: "success",
+      status: 'success',
       data: newCourse,
     });
   } catch (err) {
@@ -32,7 +32,7 @@ const getAllCoursesController = async (req, res, next) => {
     const courses = await getAllCourses();
 
     return res.status(200).json({
-      status: "success",
+      status: 'success',
       results: courses.length,
       data: courses,
     });
@@ -51,11 +51,11 @@ const getCourseByIdController = async (req, res, next) => {
     const course = await getCourseById(courseId);
 
     if (!course) {
-      return next(new AppError("Course not found", 404));
+      return next(new AppError('Course not found', 404));
     }
 
     return res.status(200).json({
-      status: "success",
+      status: 'success',
       data: course,
     });
   } catch (err) {
@@ -73,7 +73,7 @@ const updateCourseController = async (req, res, next) => {
     const updatedCourse = await updateCourse(courseId, req.body);
 
     return res.status(200).json({
-      status: "success",
+      status: 'success',
       data: updatedCourse,
     });
   } catch (err) {
@@ -88,9 +88,12 @@ const deleteCourseController = async (req, res, next) => {
   try {
     const { courseId } = req.params;
 
-    await deleteCourse(courseId);
+    const course = await deleteCourse(courseId);
 
-    return res.status(204).send();
+    return res.status(204).json({
+      status: 'success',
+      data: course,
+    });
   } catch (err) {
     next(err);
   }

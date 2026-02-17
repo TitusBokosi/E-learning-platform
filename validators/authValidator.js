@@ -13,10 +13,14 @@ const password = z
 
 
 const registerSchema = z.object({
-  name: z
+  firstname: z
     .string()
-    .min(3, "Username must be at least 3 characters")
-    .max(50),
+    .min(3, "Firstname must be at least 3 characters")
+    .max(10, "Firstname must be at most 10 characters"),
+  lastname: z
+    .string()
+    .min(3, "Lastname must be at least 3 characters")
+    .max(10, "Lastname must be at most 10 characters"),
 
   email,
   password,

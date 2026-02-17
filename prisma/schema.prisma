@@ -1,26 +1,23 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
-
 datasource db {
-  provider = "postgresql"
-  url = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
   id        String   @id @default(uuid())
-  username  String
   email     String   @unique
   roleid    String   @default("1")
   createdAt DateTime @default(now())
-  password  String   
-
-  role   Role   @relation(fields: [roleid], references: [roleid])
-  admins Admin[]
+  password  String
+  firstname String
+  lastname  String
+  admins    Admin?
+  role      Role     @relation(fields: [roleid], references: [roleid])
 
   @@map("users")
 }
@@ -28,60 +25,69 @@ model User {
 model Role {
   roleid   String  @id @default(uuid())
   roleName String  @unique
-
-  users  User[]
-  admins Admin[]   
+  admins   Admin[]
+  users    User[]
 
   @@map("roles")
 }
 
-
 model Admin {
-  id         String @id @default(uuid())
-  adminRole  String
-
-  user User @relation(fields: [id], references: [id])
-  role Role @relation(fields: [adminRole], references: [roleid])
+  id        String @id @default(uuid())
+  adminRole String
+  role      Role   @relation(fields: [adminRole], references: [roleid])
+  user      User   @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@map("admins")
 }
 
 model Course {
-  id          String   @id @default(uuid())
-  courseName  String   @unique
-  categoryid  String    @default("1")
+  courseName  String
+  description String
+  imageUrl    String?
+  createdAt   DateTime? @default(now()) @db.Timestamptz(6)
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  categoryid  String?   @db.Uuid
+  category    Category? @relation(fields: [categoryid], references: [categoryid], onDelete: Cascade, onUpdate: NoAction)
+  lessons     Lesson[]
+  topics      Topic[]
 
-  category Category @relation(fields: [categoryid], references: [categoryid])
-  topics   Topic[]
-
+  @@index([categoryid])
   @@map("courses")
 }
 
 model Topic {
-  id         String   @id @default(uuid())
-  topicName  String   @unique
-  courseid   String
+  topicName String
+  createdAt DateTime? @default(now()) @db.Timestamptz(6)
+  position  Int       @default(1)
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseid  String    @db.Uuid
+  lessons   Lesson[]
+  course    Course    @relation(fields: [courseid], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  course  Course  @relation(fields: [courseid], references: [id])
-  lessons Lesson[]
-
+  @@index([courseid])
   @@map("topics")
 }
 
 model Lesson {
-  id         String   @id @default(uuid())
-  lessonName String   @unique
-  topicid    String
+  lessonName String
+  content    String?
+  createdAt  DateTime? @default(now()) @db.Timestamptz(6)
+  position   Int       @default(1)
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  topicid    String    @db.Uuid
+  courseid   String?   @db.Uuid
+  course     Course?   @relation(fields: [courseid], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  topic      Topic     @relation(fields: [topicid], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  topic Topic @relation(fields: [topicid], references: [id])
-
+  @@index([topicid])
   @@map("lessons")
 }
 
 model Category {
-  categoryid   String   @id @default(uuid())
-  categoryName String   @unique
+  categoryName String    @unique(map: "categories_categoryname_unique")
+  createdAt    DateTime? @default(now()) @db.Timestamptz(6)
+  categoryid   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courses      Course[]
 
-  courses Course[]
   @@map("categories")
 }

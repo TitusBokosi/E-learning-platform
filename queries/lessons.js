@@ -1,15 +1,13 @@
-const prisma = require("../config/db");
-
+const prisma = require('../config/db');
 
 const createLesson = async (data) => {
   return await prisma.lesson.create({
     data: {
       lessonName: data.lessonName,
-      topicid: data.topicId, 
+      topicid: data.topicId,
     },
   });
 };
-
 
 const getAllLessonsForTopic = async (topicid) => {
   return await prisma.lesson.findMany({
@@ -19,13 +17,11 @@ const getAllLessonsForTopic = async (topicid) => {
   });
 };
 
-
 const getLessonById = async (id) => {
   return await prisma.lesson.findUnique({
     where: { id },
   });
 };
-
 
 const updateLesson = async (id, data) => {
   return await prisma.lesson.update({
@@ -37,11 +33,14 @@ const updateLesson = async (id, data) => {
   });
 };
 
-
 const deleteLesson = async (id) => {
   return await prisma.lesson.delete({
     where: { id },
   });
+};
+
+const getAllLessons = async () => {
+  return await prisma.lesson.findMany();
 };
 
 module.exports = {
@@ -50,4 +49,5 @@ module.exports = {
   getLessonById,
   updateLesson,
   deleteLesson,
+  getAllLessons,
 };

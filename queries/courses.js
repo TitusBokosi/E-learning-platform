@@ -1,36 +1,33 @@
-const prisma = require("../config/db");
-
+const prisma = require('../config/db');
 
 const createCourse = async (data) => {
   return await prisma.course.create({
-    data: {
-      courseName: data.courseName,
-      categoryid: data.categoryId, 
-    },
+    data,
   });
 };
-
 
 const getAllCourses = async () => {
   return await prisma.course.findMany({
     include: {
-      category: true,
       topics: true,
+      lessons: true,
     },
   });
 };
-
 
 const getCourseById = async (id) => {
   return await prisma.course.findUnique({
     where: { id },
     include: {
-      category: true,
-      topics: true,
+      topics: {
+        include: {
+          lessons: true,
+        },
+      },
+      lessons: true,
     },
   });
 };
-
 
 const updateCourse = async (id, data) => {
   return await prisma.course.update({
@@ -41,7 +38,6 @@ const updateCourse = async (id, data) => {
     },
   });
 };
-
 
 const deleteCourse = async (id) => {
   return await prisma.course.delete({

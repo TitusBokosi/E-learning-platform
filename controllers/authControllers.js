@@ -5,7 +5,7 @@ const authService = require("../services/auth-service");
 
 exports.registerUser = async (req, res, next) => {
   try{
-    const {name, email , password} = req.body;
+    const {firstname, lastname, email , password} = req.body;
 
     const existingUser = await getUserByEmail(email);
 
@@ -17,7 +17,7 @@ exports.registerUser = async (req, res, next) => {
     }
     const hashedPassword = await hashPassword(password)
     
-    const newUser = await createUser({username: name, email, password: hashedPassword});
+    const newUser = await createUser({firstname, lastname, email, password: hashedPassword});
 
     if(!newUser)
       return next (new AppError("failed to create user", 500))
