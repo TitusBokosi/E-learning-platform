@@ -8,7 +8,7 @@ const createUser = async (data) => {
       firstname: true,
       lastname: true,
       email: true,
-      roleid: true,
+      role: true,
     },
   });
 };
@@ -18,9 +18,10 @@ const getUserById = async (id) => {
     where: { id },
     select: {
       id: true,
-      username: true,
+      firstname: true,
+      lastname: true,
       email: true,
-      roleid: true,
+      role: true,
     },
   });
 };
@@ -33,6 +34,20 @@ const updateUser = async (id, data) => {
   return await prisma.user.update({
     where: { id },
     data,
+  });
+};
+
+const changeUserRole = async (id, roleName) => {
+  return await prisma.user.update({
+    where: { id },
+    data: { role: roleName },
+  });
+};
+
+const suspendUser = async (id, isSuspended) => {
+  return await prisma.user.update({
+    where: { id },
+    data: { isSuspended },
   });
 };
 
@@ -53,6 +68,7 @@ module.exports = {
   getUserById,
   getAllUsers,
   updateUser,
+  changeUserRole,
   deleteUser,
   getUserByEmail,
 };

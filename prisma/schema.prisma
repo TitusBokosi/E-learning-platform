@@ -3,91 +3,187 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  CREATOR
+  SUPER_CREATOR
+  ADMIN
+}
+
+enum ContentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PENDING_DELETE
+}
+
+enum LessonType {
+  VIDEO
+  TEXT
+  MINI_PROJECT
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  DROPPED
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  roleid    String   @default("1")
-  createdAt DateTime @default(now())
-  password  String
-  firstname String
-  lastname  String
-  admins    Admin?
-  role      Role     @relation(fields: [roleid], references: [roleid])
+  id           String           @id @default(uuid())
+  email        String           @unique
+  password     String
+  firstname    String
+  lastname     String
+  role         Role             @default(STUDENT)
+  isSuspended  Boolean          @default(false)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  enrollments  Enrollment[]
+  progress     LessonProgress[]
+  createdCourses Course[]       @relation("CourseCreator")
 
   @@map("users")
 }
 
-model Role {
-  roleid   String  @id @default(uuid())
-  roleName String  @unique
-  admins   Admin[]
-  users    User[]
+model Category {
+  categoryid   String    @id @default(uuid())
+  categoryName String    @unique
+  createdAt    DateTime  @default(now())
+  courses      Course[]
 
-  @@map("roles")
-}
-
-model Admin {
-  id        String @id @default(uuid())
-  adminRole String
-  role      Role   @relation(fields: [adminRole], references: [roleid])
-  user      User   @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@map("admins")
+  @@map("categories")
 }
 
 model Course {
+  id          String         @id @default(uuid())
   courseName  String
   description String
   imageUrl    String?
-  createdAt   DateTime? @default(now()) @db.Timestamptz(6)
-  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  categoryid  String?   @db.Uuid
-  category    Category? @relation(fields: [categoryid], references: [categoryid], onDelete: Cascade, onUpdate: NoAction)
-  lessons     Lesson[]
+  categoryid  String?
+  status      ContentStatus  @default(APPROVED)
+  creatorId   String?
+  isFeatured  Boolean        @default(false)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  feedback    String?
+  category    Category?      @relation(fields: [categoryid], references: [categoryid], onDelete: Cascade)
+  creator     User?          @relation("CourseCreator", fields: [creatorId], references: [id], onDelete: SetNull)
   topics      Topic[]
+  project     Project?
+  enrollments Enrollment[]
 
   @@index([categoryid])
+  @@index([creatorId])
   @@map("courses")
 }
 
 model Topic {
+  id        String         @id @default(uuid())
   topicName String
-  createdAt DateTime? @default(now()) @db.Timestamptz(6)
-  position  Int       @default(1)
-  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  courseid  String    @db.Uuid
+  position  Int            @default(1)
+  courseid  String
+  status    ContentStatus  @default(APPROVED)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  feedback  String?
+  course    Course         @relation(fields: [courseid], references: [id], onDelete: Cascade)
   lessons   Lesson[]
-  course    Course    @relation(fields: [courseid], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([courseid])
   @@map("topics")
 }
 
 model Lesson {
+  id         String           @id @default(uuid())
   lessonName String
+  lessonType LessonType       @default(TEXT)
   content    String?
-  createdAt  DateTime? @default(now()) @db.Timestamptz(6)
-  position   Int       @default(1)
-  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  topicid    String    @db.Uuid
-  courseid   String?   @db.Uuid
-  course     Course?   @relation(fields: [courseid], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  topic      Topic     @relation(fields: [topicid], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  videoUrl   String?
+  position   Int              @default(1)
+  topicid    String
+  status     ContentStatus    @default(APPROVED)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  feedback   String?
+  topic      Topic            @relation(fields: [topicid], references: [id], onDelete: Cascade)
+  progress   LessonProgress[]
 
   @@index([topicid])
   @@map("lessons")
 }
 
-model Category {
-  categoryName String    @unique(map: "categories_categoryname_unique")
-  createdAt    DateTime? @default(now()) @db.Timestamptz(6)
-  categoryid   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  courses      Course[]
+model Project {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  rubric      String?
+  courseid    String   @unique
+  createdAt   DateTime @default(now())
+  course      Course   @relation(fields: [courseid], references: [id], onDelete: Cascade)
 
-  @@map("categories")
+  @@map("projects")
+}
+
+model Enrollment {
+  id         String           @id @default(uuid())
+  userid     String
+  courseid   String
+  status     EnrollmentStatus @default(ACTIVE)
+  enrolledAt DateTime         @default(now())
+  user       User             @relation(fields: [userid], references: [id], onDelete: Cascade)
+  course     Course           @relation(fields: [courseid], references: [id], onDelete: Cascade)
+
+  @@unique([userid, courseid])
+  @@index([userid])
+  @@index([courseid])
+  @@map("enrollments")
+}
+
+model LessonProgress {
+  id          String   @id @default(uuid())
+  userid      String
+  lessonid    String
+  completedAt DateTime @default(now())
+  user        User     @relation(fields: [userid], references: [id], onDelete: Cascade)
+  lesson      Lesson   @relation(fields: [lessonid], references: [id], onDelete: Cascade)
+
+  @@unique([userid, lessonid])
+  @@index([userid])
+  @@map("lesson_progress")
+}
+
+model Announcement {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@map("announcements")
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  action    String
+  details   String
+  adminId   String
+  createdAt DateTime @default(now())
+
+  @@map("activity_logs")
+}
+
+model Feedback {
+  id        String   @id @default(uuid())
+  subject   String
+  message   String
+  email     String
+  status    String   @default("UNREAD") // UNREAD, READ, RESOLVED
+  createdAt DateTime @default(now())
+
+  @@map("feedback")
 }

@@ -1,301 +1,278 @@
-const prisma = require('../config/db');
+const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcrypt');
 
-const rolesData = ['admin', 'instructor', 'student'];
+const prisma = new PrismaClient();
+
+const SALT_ROUNDS = 10;
 
 const coursesData = [
   {
     courseName: 'React Development Mastery',
-    description:
-      'Learn advanced React concepts, build scalable web apps, and master state management, hooks, and performance optimization. This course is designed for developers who want to go beyond the basics and write production-ready React applications.',
+    description: 'Learn advanced React concepts, build scalable web apps, and master state management, hooks, and performance optimization.',
+    category: 'Web Development',
+    status: 'APPROVED',
+    isFeatured: true,
+    project: {
+      title: 'Build a React Dashboard App',
+      description: 'Create a fully functional dashboard application using React, with state management and routing.',
+      rubric: 'Criteria: Component structure, state management, responsiveness, code quality.',
+    },
     topics: [
-      'React Hooks Deep Dive',
-      'State Management with Redux',
-      'Routing & Navigation',
-      'React Performance Optimization',
-      'Context API in Depth',
-      'Testing React Applications',
-      'React with TypeScript',
-      'Server-Side Rendering with Next.js',
-      'Forms & Validation',
-      'Advanced Patterns & Best Practices',
+      { name: 'React Hooks Deep Dive', lessons: ['useState & useEffect', 'useContext & useRef', 'Custom Hooks', 'useMemo & useCallback'] },
+      { name: 'State Management', lessons: ['Redux Core Concepts', 'Redux Toolkit Setup', 'Async Thunks', 'Selectors & Slices'] },
+    ],
+  },
+  {
+    courseName: 'System Design Interview Prep',
+    description: 'Master large scale system design, scalability, availability, and distributed systems for top tier engineering roles.',
+    category: 'Backend',
+    status: 'PENDING',
+    isFeatured: false,
+    project: {
+      title: 'Design a Distributed URL Shortener',
+      description: 'Design a system that can handle 100M+ requests per day with low latency.',
+      rubric: 'Criteria: Scalability, database choice, API design, caching strategy.',
+    },
+    topics: [
+      { name: 'Scalability Fundamentals', lessons: ['Load Balancers', 'Vertical vs Horizontal Scaling', 'Caching Strategies'] },
+      { name: 'Distributed Databases', lessons: ['SQL vs NoSQL', 'Database Sharding', 'Replication & Consistency'] },
     ],
   },
   {
     courseName: 'Node.js & Express Backends',
-    description:
-      'Master Node.js and Express by building robust APIs and backend services. This course covers async programming, database integration, authentication, and real-world application architecture.',
+    description: 'Master Node.js and Express by building robust APIs and backend services with authentication and databases.',
+    category: 'Backend',
+    status: 'APPROVED',
+    isFeatured: true,
+    project: {
+      title: 'Build a REST API with Auth',
+      description: 'Design and implement a fully authenticated REST API with CRUD operations and JWT tokens.',
+      rubric: 'Criteria: Route design, auth security, error handling, database integration.',
+    },
     topics: [
-      'Node.js Basics & Modules',
-      'Asynchronous Programming',
-      'Express Routing & Middleware',
-      'REST API Design',
-      'Connecting to Databases',
-      'Authentication & Authorization',
-      'Error Handling & Logging',
-      'Testing & Debugging',
-      'Deployment & Scaling',
-      'Best Practices in Node.js',
+      { name: 'Node.js Basics', lessons: ['Node.js Architecture', 'Modules & CommonJS', 'File System API'] },
+      { name: 'Express Middleware', lessons: ['Request Lifecycle', 'Custom Middleware', 'Error Middleware'] },
     ],
   },
   {
     courseName: 'Python for Data Science',
-    description:
-      'Learn Python programming and its applications in data analysis and machine learning. Understand data manipulation, visualization, and model building with practical examples.',
+    description: 'Learn Python programming and its applications in data analysis, visualization, and machine learning fundamentals.',
+    category: 'Data Science',
+    status: 'APPROVED',
+    isFeatured: true,
+    project: {
+      title: 'Data Analysis Project',
+      description: 'Analyze a real-world dataset using Pandas and NumPy and present your findings with visualizations.',
+      rubric: 'Criteria: Data cleaning, analysis depth, visualization quality, insights.',
+    },
     topics: [
-      'Python Basics & Syntax',
-      'Data Structures & Control Flow',
-      'Functions & Modules',
-      'File Handling & OOP',
-      'NumPy for Numerical Computing',
-      'Pandas for Data Analysis',
-      'Data Visualization with Matplotlib & Seaborn',
-      'Introduction to Machine Learning',
-      'Model Evaluation & Optimization',
-      'Project: Data Analysis Pipeline',
+      { name: 'Python Basics', lessons: ['Variables & Types', 'Control Flow', 'Functions & Scope'] },
+      { name: 'Data Structures', lessons: ['Lists & Tuples', 'Dictionaries & Sets', 'Stacks & Queues'] },
     ],
   },
   {
-    courseName: 'JavaScript Deep Dive',
-    description:
-      'Master JavaScript from the ground up. Understand advanced language features, asynchronous programming, event loops, and build dynamic web applications with confidence.',
+    courseName: 'UI/UX Design with Figma',
+    description: 'Understand user experience principles and learn how to create stunning UI components and prototypes in Figma.',
+    category: 'Design',
+    status: 'PENDING',
+    isFeatured: false,
+    project: {
+      title: 'Redesign a Mobile App',
+      description: 'Identify UX issues in a popular mobile app and propose a full redesign.',
+      rubric: 'Criteria: User research, wireframing, visual hierarchy, prototyping.',
+    },
     topics: [
-      'JavaScript Fundamentals',
-      'Objects, Arrays & Functions',
-      'ES6+ Features',
-      'Asynchronous JavaScript',
-      'Promises, async/await',
-      'DOM Manipulation',
-      'Event Handling & Bubbling',
-      'Modules & Build Tools',
-      'Testing JavaScript',
-      'Design Patterns in JS',
-    ],
-  },
-  {
-    courseName: 'DevOps with Docker & Kubernetes',
-    description:
-      'Learn containerization and orchestration using Docker and Kubernetes. This course teaches how to deploy scalable applications in modern cloud environments.',
-    topics: [
-      'Introduction to DevOps',
-      'Docker Fundamentals',
-      'Building Docker Images',
-      'Docker Compose',
-      'Kubernetes Basics',
-      'Pods, Deployments & Services',
-      'ConfigMaps & Secrets',
-      'Scaling & Monitoring',
-      'CI/CD Pipelines',
-      'Best Practices in DevOps',
-    ],
-  },
-  {
-    courseName: 'Database Design & PostgreSQL',
-    description:
-      'Master relational database design and PostgreSQL. Learn schema design, normalization, SQL queries, and integrating databases with applications.',
-    topics: [
-      'Database Fundamentals',
-      'ER Modeling & Normalization',
-      'PostgreSQL Basics',
-      'Advanced SQL Queries',
-      'Indexes & Performance',
-      'Transactions & Concurrency',
-      'Stored Procedures & Triggers',
-      'Data Security & Roles',
-      'Backup & Restore',
-      'Database Optimization',
-    ],
-  },
-  {
-    courseName: 'TypeScript Essentials',
-    description:
-      'Learn TypeScript to write safer, more maintainable JavaScript. Understand types, interfaces, generics, and integrate TypeScript into real projects.',
-    topics: [
-      'Introduction to TypeScript',
-      'Basic Types & Variables',
-      'Functions & Interfaces',
-      'Classes & Inheritance',
-      'Generics & Advanced Types',
-      'Modules & Namespaces',
-      'TypeScript with React',
-      'Debugging & Tooling',
-      'Testing TypeScript',
-      'Project: Typed Application',
-    ],
-  },
-  {
-    courseName: 'Frontend Development with HTML & CSS',
-    description:
-      'Master the fundamentals of HTML and CSS to build responsive, accessible, and visually appealing web interfaces.',
-    topics: [
-      'HTML5 Basics',
-      'CSS Fundamentals',
-      'Flexbox & Grid Layouts',
-      'Responsive Design',
-      'CSS Animations & Transitions',
-      'Forms & Inputs',
-      'Accessibility in Web',
-      'Advanced CSS Selectors',
-      'Browser DevTools',
-      'Project: Portfolio Website',
-    ],
-  },
-  {
-    courseName: 'Machine Learning Fundamentals',
-    description:
-      'Understand the principles of machine learning. Learn supervised and unsupervised algorithms, model training, evaluation, and deployment.',
-    topics: [
-      'Introduction to Machine Learning',
-      'Data Preprocessing',
-      'Supervised Learning',
-      'Unsupervised Learning',
-      'Regression Models',
-      'Classification Models',
-      'Clustering Techniques',
-      'Model Evaluation & Metrics',
-      'Neural Networks Basics',
-      'Deploying ML Models',
-    ],
-  },
-  {
-    courseName: 'Cloud Computing with AWS',
-    description:
-      'Learn how to design, deploy, and manage applications in the AWS cloud. Cover EC2, S3, Lambda, and cloud architecture best practices.',
-    topics: [
-      'Introduction to Cloud',
-      'AWS Core Services',
-      'Compute: EC2 & Lambda',
-      'Storage: S3 & EBS',
-      'Networking & VPC',
-      'Databases on AWS',
-      'Security & IAM',
-      'Monitoring & Logging',
-      'Scaling Applications',
-      'Cloud Architecture Best Practices',
+      { name: 'Design Principles', lessons: ['Visual Hierarchy', 'Typography', 'Color Theory'] },
+      { name: 'Figma Mastery', lessons: ['Auto Layout', 'Variants', 'Components & Libraries'] },
     ],
   },
 ];
 
-// Function to generate 10 lessons per topic with markdown, 20+ sentences
-function generateLessons(courseName, topicName) {
-  const lessons = [];
-  for (let i = 1; i <= 10; i++) {
-    let content = `# Lesson ${i}: ${topicName}\n\n`;
-    content += `This lesson is part of the course "${courseName}". We will cover key concepts, examples, and practical implementations.\n\n`;
-
-    for (let s = 1; s <= 20; s++) {
-      content += `**Sentence ${s}:** This explains a concept in detail with examples, best practices, and potential pitfalls.\n\n`;
-      if (s % 5 === 0) {
-        content +=
-          "```javascript\n// Sample code snippet demonstrating concept\nconsole.log('Hello World');\n```\n\n";
-      }
-      if (s % 7 === 0) {
-        content += '- Key point 1\n- Key point 2\n- Key point 3\n\n';
-      }
-    }
-
-    lessons.push({
-      lessonName: `Lesson ${i} - ${topicName}`,
-      content,
-    });
-  }
-  return lessons;
-}
-
 async function main() {
-  console.log('Seeding database...');
+  console.log('🌱 Starting full seed...');
 
-  // Create roles
-  const allRoles = [];
-  for (let roleName of rolesData) {
-    const role = await prisma.role.upsert({
-      where: { roleName },
-      update: {},
-      create: { roleName },
-    });
-    allRoles.push(role);
-  }
+  // ── 1. USERS ────────────────────────────────────────────────────
+  console.log('👤 Creating users with different roles...');
+  
+  const usersToCreate = [
+    {
+      email: 'admin@titsate.com',
+      firstname: 'Titsate',
+      lastname: 'Admin',
+      password: 'AdminPassword123!',
+      role: 'ADMIN',
+    },
+    {
+      email: 'creator@titsate.com',
+      firstname: 'Dev',
+      lastname: 'Creator',
+      password: 'CreatorPassword123!',
+      role: 'CREATOR',
+    },
+    {
+      email: 'super-creator@titsate.com',
+      firstname: 'Master',
+      lastname: 'Creator',
+      password: 'SuperCreatorPassword123!',
+      role: 'SUPER_CREATOR',
+    },
+    {
+      email: 'john@example.com',
+      firstname: 'John',
+      lastname: 'Doe',
+      password: '123456789',
+      role: 'STUDENT',
+    },
+    {
+      email: 'student1@example.com',
+      firstname: 'Demo',
+      lastname: 'Student',
+      password: 'Password123!',
+      role: 'STUDENT',
+    }
+  ];
 
-  // Create 10 users
-  for (let i = 1; i <= 10; i++) {
-    const role = allRoles[i % allRoles.length];
-    await prisma.user.create({
-      data: {
-        email: `user${i}@example.com`,
-        firstname: `User${i}`,
-        lastname: `Test`,
-        password: 'password123',
-        roleid: role.roleid,
-        admins:
-          role.roleName === 'admin'
-            ? { create: { adminRole: role.roleid } }
-            : undefined,
+  const userMap = {};
+
+  for (const u of usersToCreate) {
+    const hashedPassword = await bcrypt.hash(u.password, SALT_ROUNDS);
+    const user = await prisma.user.upsert({
+      where: { email: u.email },
+      update: {
+          password: hashedPassword,
+          role: u.role
+      },
+      create: {
+        email: u.email,
+        firstname: u.firstname,
+        lastname: u.lastname,
+        password: hashedPassword,
+        role: u.role,
       },
     });
+    userMap[u.role] = user;
+    console.log(`   - Created ${u.role}: ${u.email}`);
   }
 
-  // Create categories
-  const categories = [
-    'Web Development',
-    'Backend',
-    'Data Science',
-    'DevOps',
-    'Cloud',
-  ];
-  const categoryRecords = [];
-  for (let name of categories) {
+  // ── 2. CATEGORIES ───────────────────────────────────────────────
+  console.log('📂 Creating categories...');
+  const categoryNames = ['Web Development', 'Backend', 'Data Science', 'Design', 'Mobile'];
+  const categoryMap = {};
+  for (const name of categoryNames) {
     const cat = await prisma.category.upsert({
       where: { categoryName: name },
       update: {},
       create: { categoryName: name },
     });
-    categoryRecords.push(cat);
+    categoryMap[name] = cat;
   }
 
-  // Create courses, topics, lessons
+  // ── 3. COURSES, TOPICS, LESSONS, PROJECTS ───────────────────────
+  console.log('📚 Creating courses, topics, and lessons...');
+  const createdCourses = [];
+
   for (let i = 0; i < coursesData.length; i++) {
-    const courseData = coursesData[i];
-    const category = categoryRecords[i % categoryRecords.length];
+    const data = coursesData[i];
+    const category = categoryMap[data.category];
+    
+    // Switch between creator and super_creator as creators
+    const creator = i % 2 === 0 ? userMap['SUPER_CREATOR'] : userMap['CREATOR'];
 
     const course = await prisma.course.create({
       data: {
-        courseName: courseData.courseName,
-        description: courseData.description,
+        courseName: data.courseName,
+        description: data.description,
+        status: data.status,
+        isFeatured: data.isFeatured,
+        imageUrl: `https://placehold.co/600x300/1e293b/ffffff?text=${encodeURIComponent(data.courseName)}`,
         categoryid: category.categoryid,
+        creatorId: creator.id,
       },
     });
+    createdCourses.push(course);
 
-    for (let t = 0; t < courseData.topics.length; t++) {
-      const topicName = courseData.topics[t];
-
+    // Topics
+    for (let t = 0; t < data.topics.length; t++) {
+      const topicData = data.topics[t];
+      const topicStatus = data.status; // Match course status for now
+      
       const topic = await prisma.topic.create({
         data: {
-          topicName,
+          topicName: topicData.name,
           courseid: course.id,
           position: t + 1,
+          status: topicStatus,
         },
       });
 
-      const lessons = generateLessons(courseData.courseName, topicName);
-      for (let l = 0; l < lessons.length; l++) {
+      // Lessons under each topic
+      for (let l = 0; l < topicData.lessons.length; l++) {
+        const lessonName = topicData.lessons[l];
+        const lessonType = l % 3 === 0 ? 'VIDEO' : l % 3 === 1 ? 'TEXT' : 'MINI_PROJECT';
+        
         await prisma.lesson.create({
           data: {
-            lessonName: lessons[l].lessonName,
+            lessonName,
+            lessonType: lessonType,
+            status: topicStatus,
+            content: lessonType !== 'VIDEO' 
+                ? `# ${lessonName}\n\nReviewing the core details of ${lessonName}.\n\n### Requirements\n\n1. Active participation\n2. Practical exercises\n\n[More information](https://example.com)`
+                : null,
+            videoUrl: lessonType === 'VIDEO' ? 'https://www.w3schools.com/html/mov_bbb.mp4' : null,
             topicid: topic.id,
-            courseid: course.id,
-            content: lessons[l].content,
             position: l + 1,
           },
         });
       }
     }
+
+    // Capstone project per course
+    await prisma.project.create({
+      data: {
+        title: data.project.title,
+        description: data.project.description,
+        rubric: data.project.rubric,
+        courseid: course.id,
+      },
+    });
   }
 
-  console.log('✅ Database seeding complete with full realistic tech content!');
+  // ── 4. ENROLLMENTS & PROGRESS ──────────────────────────────────
+  console.log('📝 Creating student enrollments and progress...');
+  const john = await prisma.user.findUnique({ where: { email: 'john@example.com' } });
+  const approvedCourses = createdCourses.filter(c => c.status === 'APPROVED');
+
+  for (const course of approvedCourses) {
+    await prisma.enrollment.create({
+      data: {
+        userid: john.id,
+        courseid: course.id,
+        status: 'ACTIVE',
+      },
+    });
+    
+    // Complete first lesson for each active course
+    const firstLesson = await prisma.lesson.findFirst({
+      where: { topic: { courseid: course.id } },
+      orderBy: { position: 'asc' }
+    });
+
+    if (firstLesson) {
+      await prisma.lessonProgress.create({
+        data: {
+          userid: john.id,
+          lessonid: firstLesson.id,
+        }
+      });
+    }
+  }
+
+  console.log('🎉 Seeding complete!');
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error('❌ Seeding error:', e);
     process.exit(1);
   })
   .finally(async () => {

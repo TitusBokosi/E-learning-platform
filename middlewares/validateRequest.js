@@ -2,7 +2,15 @@ const { ZodError } = require("zod");
 
 exports.validate = (schema) => (req, res, next) => {
   try {
-    req.body = schema.parse(req.body);
+    const validatedData = schema.parse({
+      body: req.body,
+      query: req.query,
+      params: req.params,
+    });
+    req.body = validatedData.body;
+    req.query = validatedData.query;
+    req.params = validatedData.params;
+    
     next();
   } catch (error) {
     if (error instanceof ZodError) {
