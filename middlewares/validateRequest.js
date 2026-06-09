@@ -1,4 +1,4 @@
-const { ZodError } = require("zod");
+const { ZodError } = require('zod');
 
 exports.validate = (schema) => (req, res, next) => {
   try {
@@ -7,18 +7,21 @@ exports.validate = (schema) => (req, res, next) => {
       query: req.query,
       params: req.params,
     });
-    req.body = validatedData.body;
-    req.query = validatedData.query;
-    req.params = validatedData.params;
-    
+    if (typeof validatedData.body !== 'undefined')
+      req.body = validatedData.body;
+    if (typeof validatedData.query !== 'undefined')
+      req.query = validatedData.query;
+    if (typeof validatedData.params !== 'undefined')
+      req.params = validatedData.params;
+
     next();
   } catch (error) {
     if (error instanceof ZodError) {
       return res.status(400).json({
-        status: "error",
-        message: "Validation failed",
+        status: 'error',
+        message: 'Validation failed',
         errors: error.issues.map((issue) => ({
-          field: issue.path.join("."),
+          field: issue.path.join('.'),
           message: issue.message,
         })),
       });
