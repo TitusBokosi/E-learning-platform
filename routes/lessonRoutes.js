@@ -14,9 +14,9 @@ const {
   updateLessonController,
   deleteLessonController,
   getAllLessonsForTopicController,
-  approveLessonController,
   rejectLessonController
 } = require('../controllers/lessonController');
+const { submitProjectController, getSubmissionController } = require('../controllers/submissionControllers');
 
 const lessonRoute = express.Router({ mergeParams: true });
 
@@ -30,5 +30,9 @@ lessonRoute.delete('/:lessonId', authenticateAccessToken, authorize('ADMIN', 'SU
 // Approval routes
 lessonRoute.post('/:lessonId/approve', authenticateAccessToken, authorize('ADMIN', 'SUPER_CREATOR'), approveLessonController);
 lessonRoute.post('/:lessonId/reject', authenticateAccessToken, authorize('ADMIN', 'SUPER_CREATOR'), rejectLessonController);
+
+// Submissions
+lessonRoute.post('/:lessonId/submit', authenticateAccessToken, submitProjectController);
+lessonRoute.get('/:lessonId/submission', authenticateAccessToken, getSubmissionController);
 
 module.exports = lessonRoute;

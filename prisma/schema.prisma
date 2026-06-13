@@ -46,6 +46,7 @@ model User {
   enrollments  Enrollment[]
   progress     LessonProgress[]
   createdCourses Course[]       @relation("CourseCreator")
+  submissions  Submission[]
 
   @@map("users")
 }
@@ -76,6 +77,7 @@ model Course {
   topics      Topic[]
   project     Project?
   enrollments Enrollment[]
+  benefits    Benefit[]
 
   @@index([categoryid])
   @@index([creatorId])
@@ -112,6 +114,7 @@ model Lesson {
   feedback   String?
   topic      Topic            @relation(fields: [topicid], references: [id], onDelete: Cascade)
   progress   LessonProgress[]
+  submissions Submission[]
 
   @@index([topicid])
   @@map("lessons")
@@ -186,4 +189,32 @@ model Feedback {
   createdAt DateTime @default(now())
 
   @@map("feedback")
+}
+
+model Benefit {
+  id        String   @id @default(uuid())
+  content   String
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+  @@map("benefits")
+}
+
+model Submission {
+  id          String   @id @default(uuid())
+  lessonId    String
+  userId      String
+  projectUrl  String
+  status      String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  feedback    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
+  @@index([userId])
+  @@map("submissions")
 }

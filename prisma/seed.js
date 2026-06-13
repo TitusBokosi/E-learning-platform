@@ -21,6 +21,12 @@ const coursesData = [
       { name: 'React Hooks Deep Dive', lessons: ['useState & useEffect', 'useContext & useRef', 'Custom Hooks', 'useMemo & useCallback'] },
       { name: 'State Management', lessons: ['Redux Core Concepts', 'Redux Toolkit Setup', 'Async Thunks', 'Selectors & Slices'] },
     ],
+    benefits: [
+      'Master modern React patterns and best practices',
+      'Build scalable web applications with high performance',
+      'Deep understanding of state management with Redux Toolkit',
+      'Comprehensive knowledge of advanced React Hooks'
+    ],
   },
   {
     courseName: 'System Design Interview Prep',
@@ -36,6 +42,12 @@ const coursesData = [
     topics: [
       { name: 'Scalability Fundamentals', lessons: ['Load Balancers', 'Vertical vs Horizontal Scaling', 'Caching Strategies'] },
       { name: 'Distributed Databases', lessons: ['SQL vs NoSQL', 'Database Sharding', 'Replication & Consistency'] },
+    ],
+    benefits: [
+      'Learn how to design systems for millions of users',
+      'Understand trade-offs in distributed systems architecture',
+      'Master database sharding and replication techniques',
+      'Prepare for senior-level engineering interview challenges'
     ],
   },
   {
@@ -53,6 +65,12 @@ const coursesData = [
       { name: 'Node.js Basics', lessons: ['Node.js Architecture', 'Modules & CommonJS', 'File System API'] },
       { name: 'Express Middleware', lessons: ['Request Lifecycle', 'Custom Middleware', 'Error Middleware'] },
     ],
+    benefits: [
+      'Build production-ready RESTful APIs from scratch',
+      'Learn secure authentication with JWT and bcrypt',
+      'Master middleware patterns for robust error handling',
+      'Develop deep understanding of asynchronous programming'
+    ],
   },
   {
     courseName: 'Python for Data Science',
@@ -69,6 +87,12 @@ const coursesData = [
       { name: 'Python Basics', lessons: ['Variables & Types', 'Control Flow', 'Functions & Scope'] },
       { name: 'Data Structures', lessons: ['Lists & Tuples', 'Dictionaries & Sets', 'Stacks & Queues'] },
     ],
+    benefits: [
+      'Analyze complex datasets using Pandas and NumPy',
+      'Create stunning data visualizations for business insights',
+      'Build a strong foundation for machine learning career',
+      'Solve real-world problems using efficient Python code'
+    ],
   },
   {
     courseName: 'UI/UX Design with Figma',
@@ -84,6 +108,12 @@ const coursesData = [
     topics: [
       { name: 'Design Principles', lessons: ['Visual Hierarchy', 'Typography', 'Color Theory'] },
       { name: 'Figma Mastery', lessons: ['Auto Layout', 'Variants', 'Components & Libraries'] },
+    ],
+    benefits: [
+      'Create high-fidelity prototypes that behave like real apps',
+      'Master Figma components and design system fundamentals',
+      'Understand user-centered design principles deeply',
+      'Build a portfolio-ready mobile app redesign project'
     ],
   },
 ];
@@ -187,6 +217,13 @@ async function main() {
         imageUrl: `https://placehold.co/600x300/1e293b/ffffff?text=${encodeURIComponent(data.courseName)}`,
         categoryid: category.categoryid,
         creatorId: creator.id,
+        benefits: {
+          create: (data.benefits || [
+            'Comprehensive understanding of core concepts',
+            'Hands-on experience with real-world projects',
+            'Practical skills you can apply immediately'
+          ]).map(content => ({ content }))
+        }
       },
     });
     createdCourses.push(course);
