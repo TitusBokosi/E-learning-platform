@@ -9,6 +9,9 @@ const createCourse = async (data, creatorId, status = 'APPROVED') => {
       categoryid: data.categoryId,
       creatorId: creatorId,
       status: status,
+      benefits: data.benefits ? {
+        create: data.benefits.map(b => ({ content: typeof b === 'string' ? b : b.content }))
+      } : undefined
     },
   });
 };
@@ -34,6 +37,7 @@ const getAllCourses = async (limit, skip, filter = {}) => {
             },
           },
         },
+        benefits: true,
       },
       take: limit || undefined,
       skip: skip || undefined,
@@ -65,6 +69,7 @@ const getCourseById = async (id, filter = {}) => {
           },
         },
       },
+      benefits: true,
       project: true,
     },
   });
@@ -80,6 +85,12 @@ const updateCourse = async (id, data) => {
       ...(data.categoryId !== undefined && { categoryid: data.categoryId }),
       ...(data.status !== undefined && { status: data.status }),
       ...(data.feedback !== undefined && { feedback: data.feedback }),
+      ...(data.benefits !== undefined && {
+        benefits: {
+          deleteMany: {},
+          create: data.benefits.map(b => ({ content: typeof b === 'string' ? b : b.content }))
+        }
+      }),
     },
   });
 };
