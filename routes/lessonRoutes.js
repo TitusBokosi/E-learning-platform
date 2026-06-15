@@ -14,7 +14,8 @@ const {
   updateLessonController,
   deleteLessonController,
   getAllLessonsForTopicController,
-  rejectLessonController
+  rejectLessonController,
+  approveLessonController
 } = require('../controllers/lessonController');
 const { submitProjectController, getSubmissionController } = require('../controllers/submissionControllers');
 
