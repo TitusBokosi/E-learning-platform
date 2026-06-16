@@ -17,7 +17,7 @@ const {
   rejectLessonController,
   approveLessonController
 } = require('../controllers/lessonController');
-const { submitProjectController, getSubmissionController } = require('../controllers/submissionControllers');
+const { submitProjectController, getSubmissionController, getLessonSubmissionsController } = require('../controllers/submissionControllers');
 
 const lessonRoute = express.Router({ mergeParams: true });
 
@@ -35,5 +35,7 @@ lessonRoute.post('/:lessonId/reject', authenticateAccessToken, authorize('ADMIN'
 // Submissions
 lessonRoute.post('/:lessonId/submit', authenticateAccessToken, submitProjectController);
 lessonRoute.get('/:lessonId/submission', authenticateAccessToken, getSubmissionController);
+// Admin: list all submissions for a lesson
+lessonRoute.get('/:lessonId/submissions', authenticateAccessToken, authorize('ADMIN', 'SUPER_CREATOR'), getLessonSubmissionsController);
 
 module.exports = lessonRoute;

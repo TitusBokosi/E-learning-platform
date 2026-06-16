@@ -20,9 +20,7 @@ const createCourseController = catchAsync(async (req, res, next) => {
 });
 
 const getAllCoursesController = catchAsync(async (req, res, next) => {
-  const limit = parseInt(req.query.limit) || 10;
-  const skip = parseInt(req.query.skip) || 0;
-  
+  const {limit = 10, skip = 0, search = ''} = req.query;
   const filter = {};
   // If user is a student (or not logged in), only show approved courses
   if (!req.user || req.user.role === 'STUDENT') {
@@ -39,7 +37,7 @@ const getAllCoursesController = catchAsync(async (req, res, next) => {
     }
   }
 
-  const { courses, total } = await getAllCourses(limit, skip, filter);
+  const { courses, total } = await getAllCourses({limit: parseInt(limit), skip: parseInt(skip), filter, search});
   const page = Math.floor(skip / limit) + 1;
 
   return res.status(200).json({
