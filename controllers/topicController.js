@@ -1,99 +1,164 @@
-const { 
-  createTopic, 
-  getTopicById, 
-  getAllTopicsForCourse, 
-  updateTopic, 
-  deleteTopic 
+const {
+  createTopic,
+  getTopicById,
+  getAllTopicsForCourse,
+  updateTopic,
+  deleteTopic,
+  getAllTopics,
 } = require('../queries/topics');
 const AppError = require('../utils/appError');
+const catchAsync = require('../utils/catchAsync');
 
-const createTopicController = async (req, res, next) => {
-  try {
+const createTopicController = catchAsync(async (req, res, next) => {
+  const courseId = req.params.courseId || req.body.courseId;
+  const status = (req.user.role === 'ADMIN' || req.user.role === 'SUPER_CREATOR') ? 'APPROVED' : 'PENDING';
+  
+  const data = { ...req.body, courseId };
+  const newTopic = await createTopic(data, status);
 
-    const newTopic = await createTopic(req.body);
-    
-    res.status(201).json({
-      status: "success",
-      data: newTopic
-    });
-  } catch (error) {
-    next(error);
+  res.status(201).json({
+    status: 'success',
+    data: newTopic,
+  });
+});
+
+const getTopicByIdController = catchAsync(async (req, res, next) => {
+  const { topicId } = req.params;
+  const filter = {};
+  if (!req.user || req.user.role === 'STUDENT') {
+    filter.status = 'APPROVED';
   }
-};
+  const topic = await getTopicById(topicId, filter);
 
-const getTopicByIdController = async (req, res, next) => {
-  try {
+  if (!topic) {
+    return next(new AppError('Topic not found or unauthorized', 404));
+  }
 
+  res.status(200).json({
+    status: 'success',
+    data: topic,
+  });
+});
+
+const getAllTopicsController = catchAsync(async (req, res, next) => {
+  const filter = {};
+  if (!req.user || req.user.role === 'STUDENT') {
+    filter.status = 'APPROVED';
+  }
+  const topics = await getAllTopics(filter);
+
+  res.status(200).json({
+    status: 'success',
+    results: topics.length,
+    data: topics,
+  });
+});
+
+const getAllTopicsForCourseController = catchAsync(async (req, res, next) => {
+  const { courseId } = req.params;
+  const filter = {};
+  if (!req.user || req.user.role === 'STUDENT') {
+    filter.status = 'APPROVED';
+  }
+  const topics = await getAllTopicsForCourse(courseId, filter);
+
+  res.status(200).json({
+    status: 'success',
+    results: topics.length,
+    data: topics,
+  });
+});
+
+const updateTopicController = catchAsync(async (req, res, next) => {
+  const { topicId } = req.params;
+  const topic = await getTopicById(topicId);
+  if (!topic) return next(new AppError('Topic not found', 404));
+
+  // Ownership check
+  if (req.user.role === 'CREATOR') {
+    const prisma = require('../config/db');
+    const course = await prisma.course.findUnique({ where: { id: topic.courseid } });
+    if (course.creatorId !== req.user.id) {
+       return next(new AppError('You can only update topics in your own courses', 403));
+    }
+  }
+
+  const updateData = { ...req.body };
+  if (req.user.role === 'CREATOR' && topic.status !== 'APPROVED') {
+    // updateData.status = 'PENDING'; // Removed automatic pending
+  }
+  const updatedTopic = await updateTopic(topicId, updateData);
+
+  res.status(200).json({
+    status: 'success',
+    data: updatedTopic,
+  });
+});
+
+const deleteTopicController = catchAsync(async (req, res, next) => {
+  const { topicId } = req.params;
+  const topic = await getTopicById(topicId);
+  if (!topic) return next(new AppError('Topic not found', 404));
+
+  if (req.user.role === 'CREATOR') {
+    const prisma = require('../config/db');
+    const course = await prisma.course.findUnique({ where: { id: topic.courseid } });
+    if (course.creatorId !== req.user.id) {
+       return next(new AppError('You can only delete topics in your own courses', 403));
+    }
+    
+    const updated = await updateTopic(topicId, { status: 'PENDING_DELETE' });
+    return res.status(200).json({
+        status: 'success',
+        message: 'Topic deletion request sent for approval',
+        data: updated
+    });
+  }
+  await deleteTopic(topicId);
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});
+
+const approveTopicController = catchAsync(async (req, res, next) => {
     const { topicId } = req.params;
-
     const topic = await getTopicById(topicId);
+    if (!topic) return next(new AppError('Topic not found', 404));
 
-    if (!topic) {
-      return next(new AppError("Topic not found", 404));
+    if (topic.status === 'PENDING_DELETE') {
+        await deleteTopic(topicId);
+        return res.status(200).json({ status: 'success', message: 'Topic deleted' });
     }
 
-    res.status(200).json({
-      status: "success",
-      data: topic,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
+    const updated = await updateTopic(topicId, { status: 'APPROVED' });
+    res.status(200).json({ status: 'success', data: updated });
+});
 
-const getAllTopicsController = async (req, res, next) => {
-  try {
-
-    const { courseId } = req.params;
-    
-    const topics = await getAllTopicsForCourse(courseId);
-    
-    res.status(200).json({
-      status: "success",
-      results: topics.length,
-      data: topics
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-const updateTopicController = async (req, res, next) => {
-  try {
-  
-    const { topicId, newdata } = req.body;
-
-    const updatedTopic = await updateTopic(topicId, newdata);
-
-    res.status(200).json({
-      status: "success",
-      data: updatedTopic
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
-const deleteTopicController = async (req, res, next) => {
-  try {
+const rejectTopicController = catchAsync(async (req, res, next) => {
     const { topicId } = req.params;
+    const { feedback } = req.body;
+    
+    if (!feedback) {
+        return next(new AppError('Please provide a reason for rejection', 400));
+    }
 
-    await deleteTopic(topicId);
-
-    res.status(204).json({
-      status: "success",
-      data: null
+    const updated = await updateTopic(topicId, { 
+        status: 'REJECTED',
+        feedback: feedback
     });
-  } catch (err) {
-   
-    next(err);
-  }
-};
+
+    res.status(200).json({ status: 'success', data: updated });
+});
 
 module.exports = {
   createTopicController,
   getTopicByIdController,
   getAllTopicsController,
   updateTopicController,
-  deleteTopicController
+  deleteTopicController,
+  getAllTopicsForCourseController,
+  approveTopicController,
+  rejectTopicController
 };

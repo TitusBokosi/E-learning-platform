@@ -1,16 +1,18 @@
 
 const { getUserById } = require("../queries/users");
 const JWTStrategy = require("passport-jwt").Strategy;
-const ExtratcJWT = require("passport-jwt").ExtractJwt;
+const ExtractJwt = require("passport-jwt").ExtractJwt;
 
 module.exports = passport => {
 
   const accessTokenOptions = {
-    jwtFromRequest: ExtratcJWT.fromAuthHeaderAsBearerToken(),
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     secretOrKey:process.env.ACCESS_TOKEN_SECRET,
   };
 
   passport.use(
+
+    
     "jwt-access",
     new JWTStrategy(accessTokenOptions, async(payload, done)=>{
       try{

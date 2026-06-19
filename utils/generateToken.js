@@ -16,8 +16,8 @@ exports.generateRefreshToken = (payload) =>{
 }
 
 exports.generateTokens = (payload) => {
-    const accessToken = this.generateAccessToken(payload);
-    const refreshToken = this.generateRefreshToken(payload);
+    const accessToken = exports.generateAccessToken(payload);
+    const refreshToken = exports.generateRefreshToken(payload);
     return {accessToken, refreshToken};
 }
 

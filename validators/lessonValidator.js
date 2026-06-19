@@ -1,50 +1,42 @@
 const { z } = require("zod");
 
+const LessonTypeEnum = z.enum(["VIDEO", "TEXT", "MINI_PROJECT"]);
+
 const createLessonValidator = z.object({
-  lessonName: z
-    .string()
-    .min(3, "Lesson name must be at least 3 characters")
-    .max(50, "Lesson name must not exceed 50 characters")
-    .trim(),
-
-  topicId: z
-    .string()
-    .uuid("Invalid topicId"),
+  body: z.object({
+    lessonName: z.string().min(3).max(50).trim(),
+    lessonType: LessonTypeEnum.default("TEXT"),
+    content: z.string().optional(),
+    videoUrl: z.string().optional(),
+    topicId: z.string().uuid("Invalid topicId"),
+    position: z.number().int().optional()
+  }),
 });
-
 
 const getLessonByIdValidator = z.object({
-  lessonId: z
-    .string()
-    .uuid("Invalid lessonId"),
+  params: z.object({
+    lessonId: z.string().uuid("Invalid lessonId"),
+  }),
 });
 
-
 const updateLessonValidator = z.object({
-  lessonId: z
-    .string()
-    .uuid("Invalid lessonId"),
-
-  newdata: z.object({
-    lessonName: z
-      .string()
-      .min(3, "Lesson name must be at least 3 characters")
-      .max(50)
-      .trim()
-      .optional(),
-
-    topicId: z
-      .string()
-      .uuid("Invalid topicId")
-      .optional(),
+  params: z.object({
+    lessonId: z.string().uuid("Invalid lessonId"),
+  }),
+  body: z.object({
+    lessonName: z.string().min(3).max(50).trim().optional(),
+    lessonType: LessonTypeEnum.optional(),
+    content: z.string().optional(),
+    videoUrl: z.string().optional(),
+    topicId: z.string().uuid("Invalid topicId").optional(),
+    position: z.number().int().optional()
   }).strict(),
 });
 
-
 const deleteLessonValidator = z.object({
-  lessonId: z
-    .string()
-    .uuid("Invalid lessonId"),
+  params: z.object({
+    lessonId: z.string().uuid("Invalid lessonId"),
+  }),
 });
 
 module.exports = {

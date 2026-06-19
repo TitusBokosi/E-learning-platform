@@ -1,47 +1,120 @@
-const prisma = require("../config/db");
+const prisma = require('../config/db');
 
-
-const createCourse = async (data) => {
+const createCourse = async (data, creatorId, status = 'APPROVED') => {
   return await prisma.course.create({
     data: {
       courseName: data.courseName,
-      categoryid: data.categoryId, 
+      description: data.description,
+      imageUrl: data.imageUrl,
+      categoryid: data.categoryId,
+      creatorId: creatorId,
+      status: status,
+      benefits: data.benefits ? {
+        create: data.benefits.map(b => ({ content: typeof b === 'string' ? b : b.content }))
+      } : undefined
     },
   });
 };
 
+const getAllCourses = async ({ limit, skip, filter = {}, search = '' }) => {
+  // Separate the course-level filter from nested status filtering
+  const { status } = filter;
 
-const getAllCourses = async () => {
-  return await prisma.course.findMany({
+  // Build search condition
+  const searchCondition = search
+    ? {
+        OR: [
+          { courseName: { contains: search, mode: 'insensitive' } },
+          { description: { contains: search, mode: 'insensitive' } },
+        ],
+      }
+    : {};
+
+  const whereClause = search
+    ? { AND: [filter, searchCondition] }
+    : filter;
+
+  const [courses, total] = await Promise.all([
+    prisma.course.findMany({
+      where: whereClause,
+      include: {
+        category: true,
+        creator: {
+          select: {
+            id: true,
+            firstname: true,
+            lastname: true,
+          },
+        },
+        topics: {
+          where: status ? { status } : {},
+          orderBy: { position: 'asc' },
+          include: {
+            lessons: {
+              where: status ? { status } : {},
+              orderBy: { position: 'asc' },
+            },
+          },
+        },
+        benefits: true,
+      },
+      take: limit ?? 10,
+      skip: skip ?? 0,
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.course.count({ where: whereClause }),
+  ]);
+
+  return { courses, total };
+};
+
+const getCourseById = async (id, filter = {}) => {
+  return await prisma.course.findFirst({
+    where: { id, ...filter },
     include: {
       category: true,
-      topics: true,
+      creator: {
+        select: {
+          id: true,
+          firstname: true,
+          lastname: true,
+        }
+      },
+      topics: {
+        where: filter.status ? { status: filter.status } : {},
+        orderBy: { position: 'asc' },
+        include: {
+          lessons: {
+            where: filter.status ? { status: filter.status } : {},
+            orderBy: { position: 'asc' },
+          },
+        },
+      },
+      benefits: true,
+      project: true,
     },
   });
 };
-
-
-const getCourseById = async (id) => {
-  return await prisma.course.findUnique({
-    where: { id },
-    include: {
-      category: true,
-      topics: true,
-    },
-  });
-};
-
 
 const updateCourse = async (id, data) => {
   return await prisma.course.update({
     where: { id },
     data: {
-      ...(data.courseName && { courseName: data.courseName }),
-      ...(data.categoryId && { categoryid: data.categoryId }),
+      ...(data.courseName !== undefined && { courseName: data.courseName }),
+      ...(data.description !== undefined && { description: data.description }),
+      ...(data.imageUrl !== undefined && { imageUrl: data.imageUrl }),
+      ...(data.categoryId !== undefined && { categoryid: data.categoryId }),
+      ...(data.status !== undefined && { status: data.status }),
+      ...(data.feedback !== undefined && { feedback: data.feedback }),
+      ...(data.benefits !== undefined && {
+        benefits: {
+          deleteMany: {},
+          create: data.benefits.map(b => ({ content: typeof b === 'string' ? b : b.content }))
+        }
+      }),
     },
   });
 };
-
 
 const deleteCourse = async (id) => {
   return await prisma.course.delete({

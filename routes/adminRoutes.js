@@ -1,19 +1,36 @@
-const express = require("express");
-const { validate } = require("../middlewares/validateRequest");
-const { deleteUserValidator } = require("../validators/adminValidator");
-const { authenticateAccessToken } = require("../middlewares/authMiddleware");
-const { deleteUserController } = require("../controllers/adminController");
-const courseRoute = require("./coursesRoutes");
-const lessonRoute = require("./lessonRoutes");
-const topicRoute = require("./topicRoutes");
+const express = require('express');
+const { getAdminStats, getRecentActivity, getAdminAnalytics } = require('../controllers/adminController');
+const {
+  createAnnouncementController,
+  getAllAnnouncementsController,
+  updateAnnouncementController,
+  deleteAnnouncementController,
+  toggleAnnouncementController,
+} = require('../controllers/announcementController');
+const { toggleFeaturedController, getFeaturedCoursesController } = require('../controllers/featuredController');
+const { authenticateAccessToken, authorize, maybeAuthenticate } = require('../middlewares/authMiddleware');
 
 const adminRoute = express.Router();
 
-adminRoute.use("/:adminname/courses", authenticateAccessToken, courseRoute)
-adminRoute.use("/:adminname/lessons", authenticateAccessToken, lessonRoute )
-adminRoute.use("/:adminname/topics", authenticateAccessToken, topicRoute)
-adminRoute.patch("/:adminname/updateUser/:userId", validate(deleteUserValidator), authenticateAccessToken, deleteUserController);
-adminRoute.delete("/:adminname/deleteUser/:userId", validate(deleteUserValidator), deleteUserController);
+// Public: get active announcements & featured courses
+adminRoute.get('/announcements/public', maybeAuthenticate, getAllAnnouncementsController);
+adminRoute.get('/featured-courses', maybeAuthenticate, getFeaturedCoursesController);
 
+// Protected admin routes
+adminRoute.use(authenticateAccessToken, authorize('ADMIN', 'SUPER_CREATOR'));
+
+adminRoute.get('/stats', getAdminStats);
+adminRoute.get('/activity', getRecentActivity);
+adminRoute.get('/analytics', getAdminAnalytics);
+
+// Announcements CRUD
+adminRoute.get('/announcements', getAllAnnouncementsController);
+adminRoute.post('/announcements', createAnnouncementController);
+adminRoute.patch('/announcements/:id', updateAnnouncementController);
+adminRoute.patch('/announcements/:id/toggle', toggleAnnouncementController);
+adminRoute.delete('/announcements/:id', deleteAnnouncementController);
+
+// Featured content
+adminRoute.patch('/courses/:courseId/toggle-featured', toggleFeaturedController);
 
 module.exports = adminRoute;

@@ -1,19 +1,36 @@
-const express = require("express");
-const { createCourseController, getAllCoursesController, getCourseByIdController, updateCourseController, deleteCourseController} =require("./controllers/courseControllers");
-const {createCourseValidator, getCourseByIdValidator, updateCourseValidator, deleteCourseValidator,} =require ("../validators/courseValidator");
+const express = require('express');
+const {
+  createCourseController,
+  getAllCoursesController,
+  getCourseByIdController,
+  updateCourseController,
+  deleteCourseController,
+  approveCourseController,
+  rejectCourseController
+} = require('../controllers/courseControllers');
+const {
+  createCourseValidator,
+  getCourseByIdValidator,
+  updateCourseValidator,
+  deleteCourseValidator,
+} = require('../validators/courseValidator');
+const topicRoute = require('./topicRoutes');
+const { validate } = require('../middlewares/validateRequest');
+const { authenticateAccessToken, maybeAuthenticate, authorize } = require('../middlewares/authMiddleware');
 
 const courseRoute = express.Router();
 
-courseRoute.GET("/", getAllCoursesController);
-courseRoute.POST("/", validate(createCourseValidator), createCourseController);
-courseRoute.GET("/:courseid", validate(getCourseByIdValidator), getCourseByIdController);
-courseRoute.PUT("/:courseid", validate(updateCourseValidator), updateCourseController);
-courseRoute.DELETE("/:courseid", validate(deleteCourseValidator), deleteCourseController);
-const topicRoute = require("./topicRoutes");
+courseRoute.get('/', maybeAuthenticate, getAllCoursesController);
+courseRoute.get('/:courseId', maybeAuthenticate, validate(getCourseByIdValidator), getCourseByIdController);
 
-const courseRoute = express.Router();
+courseRoute.post('/', authenticateAccessToken, authorize('ADMIN', 'SUPER_CREATOR', 'CREATOR'), validate(createCourseValidator), createCourseController);
+courseRoute.patch('/:courseId', authenticateAccessToken, authorize('ADMIN', 'SUPER_CREATOR', 'CREATOR'), validate(updateCourseValidator), updateCourseController);
+courseRoute.delete('/:courseId', authenticateAccessToken, authorize('ADMIN', 'SUPER_CREATOR', 'CREATOR'), validate(deleteCourseValidator), deleteCourseController);
 
-courseRoute.use("/:courseId/topics", topicRoute);
+// Approval routes
+courseRoute.post('/:courseId/approve', authenticateAccessToken, authorize('ADMIN', 'SUPER_CREATOR'), approveCourseController);
+courseRoute.post('/:courseId/reject', authenticateAccessToken, authorize('ADMIN', 'SUPER_CREATOR'), rejectCourseController);
 
+courseRoute.use('/:courseId/topics', topicRoute);
 
 module.exports = courseRoute;
