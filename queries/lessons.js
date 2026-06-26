@@ -1,6 +1,16 @@
 const prisma = require('../config/db');
 
 const createLesson = async (data, status = 'APPROVED') => {
+  let position = data.position;
+  if (position === undefined || position === null) {
+    const lastLesson = await prisma.lesson.findFirst({
+      where: { topicid: data.topicId },
+      orderBy: { position: 'desc' },
+      select: { position: true },
+    });
+    position = lastLesson ? lastLesson.position + 1 : 1;
+  }
+
   return await prisma.lesson.create({
     data: {
       lessonName: data.lessonName,
@@ -8,7 +18,7 @@ const createLesson = async (data, status = 'APPROVED') => {
       content: data.content,
       videoUrl: data.videoUrl,
       topicid: data.topicId,
-      position: data.position || 1,
+      position: position,
       status: status,
     },
   });

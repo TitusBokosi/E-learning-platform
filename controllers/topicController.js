@@ -100,20 +100,15 @@ const deleteTopicController = catchAsync(async (req, res, next) => {
   const topic = await getTopicById(topicId);
   if (!topic) return next(new AppError('Topic not found', 404));
 
+  // Ownership check
   if (req.user.role === 'CREATOR') {
     const prisma = require('../config/db');
     const course = await prisma.course.findUnique({ where: { id: topic.courseid } });
     if (course.creatorId !== req.user.id) {
        return next(new AppError('You can only delete topics in your own courses', 403));
     }
-    
-    const updated = await updateTopic(topicId, { status: 'PENDING_DELETE' });
-    return res.status(200).json({
-        status: 'success',
-        message: 'Topic deletion request sent for approval',
-        data: updated
-    });
   }
+
   await deleteTopic(topicId);
 
   res.status(204).json({

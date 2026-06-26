@@ -106,14 +106,8 @@ const deleteLessonController = catchAsync(async (req, res, next) => {
     if (course.creatorId !== req.user.id) {
        return next(new AppError('You can only delete lessons in your own courses', 403));
     }
-
-    const updated = await updateLesson(lessonId, { status: 'PENDING_DELETE' });
-    return res.status(200).json({
-        status: 'success',
-        message: 'Lesson deletion request sent for approval',
-        data: updated
-    });
   }
+
   await deleteLesson(lessonId);
   res.status(204).send();
 });
